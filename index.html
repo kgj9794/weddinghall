@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웨딩홀 투어 우선순위 & 일정·메모 관리</title>
+    <title>웨딩홀 투어 우선순위 & 일정·견적 관리</title>
     <!-- 파비콘 설정 -->
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5307/5307639.png" type="image/png">
     <style>
@@ -39,7 +39,7 @@
             align-items: center;
         }
 
-        /* 상단 네비게이션 바 (좌/중/우 버튼) */
+        /* 상단 네비게이션 바 */
         .top-nav {
             width: 100%;
             max-width: 500px;
@@ -74,7 +74,7 @@
             transform: translateY(-1px);
         }
 
-        /* 로딩 화면 (Overlay) UI */
+        /* 로딩 화면 UI */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -88,7 +88,7 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
         .loading-overlay.hidden {
@@ -126,7 +126,7 @@
             background-color: var(--primary-color);
             border-radius: 10px;
             transition: width 0.2s ease;
-            animation: loading-pulse 1.8s infinite ease-in-out;
+            animation: loading-pulse 1.5s infinite ease-in-out;
         }
 
         @keyframes loading-pulse {
@@ -206,12 +206,46 @@
             padding: 20px;
         }
 
-        .info h2 {
-            font-size: 1.25rem;
-            margin-bottom: 12px;
-            color: var(--text-main);
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .card-header-row h2 {
+            font-size: 1.25rem;
+            color: var(--text-main);
+        }
+
+        /* ℹ️ 견적 사진 아이콘 버튼 */
+        .btn-info-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #f7f3ed;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-info-icon:hover {
+            background-color: #ede4d8;
+        }
+
+        .btn-info-icon .img-count-badge {
+            background-color: var(--pink-btn);
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 10px;
         }
 
         .detail-list {
@@ -252,7 +286,7 @@
             background-color: #f2e9dc;
         }
 
-        /* 기본 예약 박스 (미등록 상태) */
+        /* 예약 박스 */
         .reservation-box {
             margin-top: 16px;
             padding: 14px;
@@ -271,7 +305,6 @@
             text-align: center;
         }
 
-        /* 등록 완료 시 핑크색 배경 스타일 적용 */
         .reservation-box.is-saved {
             background-color: var(--pink-bg);
             border: 1px solid var(--pink-border);
@@ -281,7 +314,7 @@
             color: var(--pink-text);
         }
 
-        /* 확정 모드 (저장 완료 보기) */
+        /* 확정 모드 */
         .view-mode {
             display: flex;
             flex-direction: column;
@@ -453,11 +486,165 @@
             padding: 4px;
         }
 
-        /* 한눈에 보기 모달 전용 */
-        .overview-list {
+        /* 견적서 사진 모달 전용 */
+        .photo-modal-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fdfbf7;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-upload-label:hover {
+            opacity: 0.9;
+        }
+
+        /* 가로 슬라이더 스타일 */
+        .photo-slider {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .photo-slider::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .photo-slider::-webkit-scrollbar-thumb {
+            background-color: #dcd3c8;
+            border-radius: 10px;
+        }
+
+        .photo-slide-card {
+            flex: 0 0 82%;
+            scroll-snap-align: center;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background-color: #f7f5f0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .photo-slide-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            display: block;
+            cursor: zoom-in;
+        }
+
+        .btn-delete-photo {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            border: none;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(2px);
+        }
+
+        .btn-delete-photo:hover {
+            background-color: #d32f2f;
+        }
+
+        .photo-empty-msg {
+            text-align: center;
+            padding: 30px 10px;
+            color: #888;
+            font-size: 0.85rem;
+            background-color: #fdfbf7;
+            border-radius: 12px;
+            border: 1px dashed #ddd;
+        }
+
+        /* 사진 고화질 확대 모달 */
+        .zoom-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 20000;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .zoom-overlay.hidden {
+            display: none;
+        }
+
+        .zoom-img-wrapper {
+            max-width: 100%;
+            max-height: 80vh;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .zoom-img-wrapper img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            transition: transform 0.2s ease;
+            cursor: grab;
+        }
+
+        .zoom-tools {
+            margin-top: 14px;
+            display: flex;
             gap: 12px;
+        }
+
+        .btn-zoom-ctrl {
+            padding: 8px 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-zoom-ctrl:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* 조건 보기 & 한눈에 보기 모달 */
+        .overview-list, .conditions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .overview-card {
@@ -508,13 +695,6 @@
             word-break: break-all;
         }
 
-        /* 조건 보기 모달 전용 */
-        .conditions-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
         .condition-item {
             background-color: #fdfbf7;
             border: 1px solid var(--border-color);
@@ -532,8 +712,15 @@
             white-space: nowrap;
         }
 
-        .condition-item span {
-            color: var(--text-main);
+        .auto-close-msg {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--pink-text);
+            text-align: center;
+            background-color: var(--pink-bg);
+            border: 1px solid var(--pink-border);
+            padding: 6px;
+            border-radius: 8px;
         }
 
         .modal-footer {
@@ -578,7 +765,7 @@
         </div>
     </div>
 
-    <!-- 상단 버튼 (지도 링크 / 조건 보기 / 한눈에 보기) -->
+    <!-- 상단 버튼 -->
     <div class="top-nav">
         <a href="https://www.google.com/maps/d/edit?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ&usp=sharing" target="_blank" rel="noopener noreferrer" class="top-nav-btn">
             🗺️ 투어 지도
@@ -593,7 +780,7 @@
 
     <header>
         <h1>💍 웨딩홀 투어 리스트</h1>
-
+        <p>투어 일정 및 견적 서류 DB 관리</p>
     </header>
 
     <div class="container">
@@ -605,7 +792,12 @@
                 <img src="https://mblogthumb-phinf.pstatic.net/MjAyNDA0MjFfMTE0/MDAxNzEzNjYzOTEyMDYy.mcFwCTuMxiieQ7pTQ09yoqMklFSO85GziQd7g3iNt-sg.kj89w2VLNSz46TfnO8YEsTv9lf_F9G2a28tJnogSp6Yg.JPEG/SE-5bfcc0bd-7992-4b5e-a7ab-37570c28054b.jpg?type=w800" referrerpolicy="no-referrer" alt="더세인트">
             </a>
             <div class="info">
-                <h2>더세인트 (The Saint)</h2>
+                <div class="card-header-row">
+                    <h2>더세인트 (The Saint)</h2>
+                    <button class="btn-info-icon" onclick="openPhotoModal('thesaint', '더세인트')">
+                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-thesaint">0</span>
+                    </button>
+                </div>
                 <div class="detail-list">
                     <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 경인로 662 디큐브시티 6층 / 41층</span></div>
                     <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>1·2호선 신도림역 지하 직접 연결 / 현대백화점 주차장</span></div>
@@ -642,7 +834,12 @@
                 <img src="https://cdn.imweb.me/upload/S20250509166c5ad4f8d79/6a7651e34a28d.png" referrerpolicy="no-referrer" alt="더베르G">
             </a>
             <div class="info">
-                <h2>더베르G (The Verde G)</h2>
+                <div class="card-header-row">
+                    <h2>더베르G (The Verde G)</h2>
+                    <button class="btn-info-icon" onclick="openPhotoModal('verde', '더베르G')">
+                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-verde">0</span>
+                    </button>
+                </div>
                 <div class="detail-list">
                     <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 디지털로26길 38 지타워 2층</span></div>
                     <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>2호선 구로디지털단지역 / 약 1,400대 이상 대형 주차장</span></div>
@@ -679,7 +876,12 @@
                 <img src="https://www.dmcwedding.co.kr/attachList/upload/hall/c20190908194157553/p20250414184547497/pop20251105121350627.jpg" referrerpolicy="no-referrer" alt="DMC타워">
             </a>
             <div class="info">
-                <h2>DMC타워 웨딩홀</h2>
+                <div class="card-header-row">
+                    <h2>DMC타워 웨딩홀</h2>
+                    <button class="btn-info-icon" onclick="openPhotoModal('dmc', 'DMC타워')">
+                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-dmc">0</span>
+                    </button>
+                </div>
                 <div class="detail-list">
                     <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 성암로 189 중소기업DMC타워</span></div>
                     <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>6호선·공항철도·경의중앙선 DMC역 8번 출구 직접 연결</span></div>
@@ -716,7 +918,12 @@
                 <img src="https://cdn.imweb.me/upload/S20240204aca494e0b4938/98bba511c0de4.jpg" referrerpolicy="no-referrer" alt="월드컵컨벤션">
             </a>
             <div class="info">
-                <h2>월드컵컨벤션</h2>
+                <div class="card-header-row">
+                    <h2>월드컵컨벤션</h2>
+                    <button class="btn-info-icon" onclick="openPhotoModal('worldcup', '월드컵컨벤션')">
+                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-worldcup">0</span>
+                    </button>
+                </div>
                 <div class="detail-list">
                     <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 월드컵로 240 서울월드컵경기장 서측 2층</span></div>
                     <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>6호선 월드컵경기장역 / 경기장 내 최고 수준 주차</span></div>
@@ -748,7 +955,48 @@
 
     </div>
 
-    <!-- 1. 나의 예식 조건 모달 레이어 -->
+    <!-- 1. 견적 사진 슬라이더 모달 -->
+    <div id="photo-modal" class="modal-overlay hidden" onclick="closePhotoModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="photo-modal-title">📄 견적서 사진 관리</h2>
+                <button class="modal-close-btn" onclick="closePhotoModal()">✕</button>
+            </div>
+            
+            <div class="photo-modal-tools">
+                <span style="font-size:0.83rem; color:#666;">사진을 가로로 넘겨보세요</span>
+                <label class="btn-upload-label">
+                    ➕ 사진 추가
+                    <input type="file" id="file-upload-input" accept="image/*" multiple style="display:none;" onchange="handleFileUpload(event)">
+                </label>
+            </div>
+
+            <!-- 사진 슬라이더 -->
+            <div id="photo-slider" class="photo-slider">
+                <!-- JS에서 동적 생성 -->
+            </div>
+
+            <div id="photo-status-msg" class="status-msg"></div>
+
+            <div class="modal-footer">
+                <button class="btn-modal-confirm" style="width:100%;" onclick="closePhotoModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 고화질 이미지 확대 뷰어 -->
+    <div id="zoom-modal" class="zoom-overlay hidden" onclick="closeZoomModal()">
+        <div class="zoom-img-wrapper" onclick="event.stopPropagation()">
+            <img id="zoom-img" src="" alt="확대보기" onclick="toggleZoomIn(event)">
+        </div>
+        <div class="zoom-tools" onclick="event.stopPropagation()">
+            <button class="btn-zoom-ctrl" onclick="adjustZoom(-0.3)">➖ 축소</button>
+            <button class="btn-zoom-ctrl" onclick="adjustZoom(0.3)">➕ 확대</button>
+            <button class="btn-zoom-ctrl" onclick="closeZoomModal()">✕ 닫기</button>
+        </div>
+    </div>
+
+    <!-- 3. 나의 예식 조건 모달 -->
     <div id="conditions-modal" class="modal-overlay hidden" onclick="closeConditionsModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -777,6 +1025,7 @@
                     <span>2,500만원</span>
                 </div>
             </div>
+            <div id="auto-close-msg" class="auto-close-msg" style="display: none;"></div>
             <div class="modal-footer">
                 <button class="btn-hide-today" onclick="hideConditionsToday()">오늘 하루 동안 보지 않기</button>
                 <button class="btn-modal-confirm" onclick="closeConditionsModal()">닫기</button>
@@ -784,16 +1033,14 @@
         </div>
     </div>
 
-    <!-- 2. 한눈에 보기 모달 레이어 -->
+    <!-- 4. 한눈에 보기 모달 -->
     <div id="overview-modal" class="modal-overlay hidden" onclick="closeOverviewModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2>📋 투어 일정 한눈에 보기</h2>
                 <button class="modal-close-btn" onclick="closeOverviewModal()">✕</button>
             </div>
-            <div class="overview-list" id="overview-list">
-                <!-- JS에서 동적 생성 -->
-            </div>
+            <div class="overview-list" id="overview-list"></div>
         </div>
     </div>
 
@@ -801,13 +1048,42 @@
         const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjRj4xtrQEHu3DBGwD0GZOUhHIvxKiyw7qwloZ4PhaXgmqq1g/exec";
         
         let currentDbData = {};
-        let autoCloseTimer = null; // 5초 타이머 제어용
+        let activeHallId = null;
+        let autoCloseInterval = null;
+        let currentZoomScale = 1.0;
 
         document.addEventListener("DOMContentLoaded", function() {
+            loadFromLocalStorage();
             loadReservations();
         });
 
-        // 로딩 바 제어
+        function saveToLocalStorage(data) {
+            try {
+                localStorage.setItem("wedding_tour_cache", JSON.stringify(data));
+            } catch (e) {
+                console.warn("LocalStorage 저장 실패", e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const cached = localStorage.getItem("wedding_tour_cache");
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    ["thesaint", "verde", "dmc", "worldcup"].forEach(id => {
+                        if (data[id]) {
+                            let rDate = typeof data[id] === 'object' ? data[id].reservedAt : data[id];
+                            let rMemo = typeof data[id] === 'object' ? data[id].memo : "";
+                            let rImgs = typeof data[id] === 'object' ? (data[id].images || []) : [];
+                            setSavedState(id, rDate, rMemo, rImgs);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn("LocalStorage 캐시 읽기 실패", e);
+            }
+        }
+
         function hideLoader() {
             const barFill = document.getElementById("progress-bar-fill");
             const loader = document.getElementById("loader");
@@ -819,12 +1095,10 @@
             
             setTimeout(() => {
                 if (loader) loader.classList.add("hidden");
-                // 로딩 종료 후 최초 접속 조건 팝업 체크
                 checkInitialConditionsPopup();
-            }, 300);
+            }, 200);
         }
 
-        // DB 날짜 포맷 정제
         function sanitizeDatetimeLocal(dateTimeStr) {
             if (!dateTimeStr) return "";
             if (typeof dateTimeStr !== 'string') dateTimeStr = String(dateTimeStr);
@@ -845,7 +1119,6 @@
             return "";
         }
 
-        // 한국어 날짜 표현
         function formatKoreanDateTime(dateTimeStr) {
             let cleanStr = sanitizeDatetimeLocal(dateTimeStr);
             if (!cleanStr) return dateTimeStr;
@@ -865,19 +1138,22 @@
             return `${year}년 ${month}월 ${day}일 ${ampm} ${formattedHours}시 ${minutes}분`;
         }
 
-        // 저장 상태(보기 모드) 전환
-        function setSavedState(hallId, dateVal, memoVal) {
-            currentDbData[hallId] = { reservedAt: dateVal, memo: memoVal };
+        function setSavedState(hallId, dateVal, memoVal, imgArr) {
+            let images = Array.isArray(imgArr) ? imgArr : [];
+            currentDbData[hallId] = { reservedAt: dateVal, memo: memoVal, images: images };
 
             const inputDate = document.getElementById("date-" + hallId);
             const inputMemo = document.getElementById("memo-" + hallId);
             const textDate = document.getElementById("text-" + hallId);
             const textMemo = document.getElementById("memo-text-" + hallId);
             const box = document.getElementById("box-" + hallId);
+            const badgeCount = document.getElementById("badge-count-" + hallId);
             
             const viewDiv = document.getElementById("view-" + hallId);
             const editDiv = document.getElementById("edit-" + hallId);
             const status = document.getElementById("status-" + hallId);
+
+            if (badgeCount) badgeCount.innerText = images.length;
 
             let cleanDateVal = sanitizeDatetimeLocal(dateVal);
             if (inputDate) inputDate.value = cleanDateVal;
@@ -904,7 +1180,6 @@
             if (status) status.innerText = "";
         }
 
-        // 수정 모드로 전환
         function enableEdit(hallId) {
             const viewDiv = document.getElementById("view-" + hallId);
             const editDiv = document.getElementById("edit-" + hallId);
@@ -921,35 +1196,86 @@
             }
         }
 
-        // DB에서 조회
         function loadReservations() {
-            fetch(GAS_URL + "?action=get")
-                .then(res => res.json())
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+            fetch(GAS_URL + "?action=get", { signal: controller.signal })
+                .then(res => {
+                    clearTimeout(timeoutId);
+                    return res.json();
+                })
                 .then(data => {
                     ["thesaint", "verde", "dmc", "worldcup"].forEach(id => {
                         if (data[id]) {
-                            let rDate = typeof data[id] === 'object' ? data[id].reservedAt : data[id];
-                            let rMemo = typeof data[id] === 'object' ? data[id].memo : "";
-                            setSavedState(id, rDate, rMemo);
+                            let rDate = data[id].reservedAt || "";
+                            let rMemo = data[id].memo || "";
+                            let rImgs = data[id].images || [];
+                            setSavedState(id, rDate, rMemo, rImgs);
                         } else {
-                            document.getElementById("edit-" + id).style.display = "flex";
-                            document.getElementById("view-" + id).style.display = "none";
+                            if (!currentDbData[id] || (!currentDbData[id].reservedAt && !currentDbData[id].memo)) {
+                                document.getElementById("edit-" + id).style.display = "flex";
+                                document.getElementById("view-" + id).style.display = "none";
+                            }
                         }
                     });
+                    saveToLocalStorage(currentDbData);
                 })
                 .catch(err => {
-                    console.error("데이터 로딩 실패:", err);
-                    ["thesaint", "verde", "dmc", "worldcup"].forEach(id => {
-                        document.getElementById("edit-" + id).style.display = "flex";
-                        document.getElementById("view-" + id).style.display = "none";
-                    });
+                    console.warn("DB 연결 지연으로 로컬 데이터 사용:", err.name);
                 })
                 .finally(() => {
                     hideLoader();
                 });
         }
 
-        // DB에 저장
+        // DB 통합 저장 (POST방식)
+        function syncDataToDb(hallId, statusElement) {
+            const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [] };
+
+            saveToLocalStorage(currentDbData);
+
+            if (statusElement) {
+                statusElement.innerText = "DB에 동기화 중...";
+                statusElement.style.color = "#8a735c";
+            }
+
+            const payload = {
+                action: "save",
+                hallId: hallId,
+                reservedAt: hallData.reservedAt || "",
+                memo: hallData.memo || "",
+                images: hallData.images || []
+            };
+
+            fetch(GAS_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    if (statusElement) {
+                        statusElement.innerText = "✅ 성공적으로 저장되었습니다.";
+                        statusElement.style.color = "#2e7d32";
+                    }
+                } else {
+                    if (statusElement) {
+                        statusElement.innerText = "⚠️ 시트 저장 지연 (로컬 저장 완료)";
+                        statusElement.style.color = "#d32f2f";
+                    }
+                }
+            })
+            .catch(err => {
+                if (statusElement) {
+                    statusElement.innerText = "⚠️ 시트 연결 지연 (로컬 저장 완료)";
+                    statusElement.style.color = "#d32f2f";
+                }
+                console.error(err);
+            });
+        }
+
         function saveReservation(hallId) {
             const inputDate = document.getElementById("date-" + hallId);
             const inputMemo = document.getElementById("memo-" + hallId);
@@ -957,64 +1283,192 @@
 
             const dateVal = inputDate.value;
             const memoVal = inputMemo.value;
+            const existingImgs = (currentDbData[hallId] && currentDbData[hallId].images) ? currentDbData[hallId].images : [];
 
             if (!dateVal && (!memoVal || memoVal.trim() === "")) {
                 alert("일시 또는 메모를 입력해 주세요.");
                 return;
             }
 
-            status.innerText = "DB에 저장 중...";
-            status.style.color = "#8a735c";
-
-            const saveUrl = `${GAS_URL}?action=save&hallId=${hallId}&reservedAt=${encodeURIComponent(dateVal)}&memo=${encodeURIComponent(memoVal)}`;
-
-            fetch(saveUrl)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        setSavedState(hallId, dateVal, memoVal);
-                        status.innerText = "✅ 성공적으로 저장되었습니다.";
-                        status.style.color = "#2e7d32";
-                    } else {
-                        status.innerText = "❌ 저장 실패";
-                        status.style.color = "#d32f2f";
-                    }
-                })
-                .catch(err => {
-                    status.innerText = "❌ 저장 중 오류가 발생했습니다.";
-                    status.style.color = "#d32f2f";
-                    console.error(err);
-                });
+            setSavedState(hallId, dateVal, memoVal, existingImgs);
+            syncDataToDb(hallId, status);
         }
 
         // ----------------------------------
-        // 조건 보기 모달 제어
+        // 견적 사진 모달 & 업로드/삭제/확대
+        // ----------------------------------
+        function openPhotoModal(hallId, hallName) {
+            activeHallId = hallId;
+            document.getElementById("photo-modal-title").innerText = `📄 ${hallName} 견적서 사진`;
+            document.getElementById("photo-status-msg").innerText = "";
+            renderPhotoSlider();
+            document.getElementById("photo-modal").classList.remove("hidden");
+        }
+
+        function closePhotoModal() {
+            document.getElementById("photo-modal").classList.add("hidden");
+            activeHallId = null;
+        }
+
+        function renderPhotoSlider() {
+            const slider = document.getElementById("photo-slider");
+            slider.innerHTML = "";
+
+            const images = (currentDbData[activeHallId] && currentDbData[activeHallId].images) ? currentDbData[activeHallId].images : [];
+
+            const badgeCount = document.getElementById("badge-count-" + activeHallId);
+            if (badgeCount) badgeCount.innerText = images.length;
+
+            if (images.length === 0) {
+                slider.innerHTML = `<div class="photo-empty-msg">등록된 견적서 사진이 없습니다.<br>위의 [+ 사진 추가] 버튼을 눌러 사진을 등록해 보세요!</div>`;
+                return;
+            }
+
+            images.forEach((imgBase64, idx) => {
+                const card = document.createElement("div");
+                card.className = "photo-slide-card";
+                card.innerHTML = `
+                    <img src="${imgBase64}" alt="견적서 ${idx+1}" onclick="openZoomModal('${imgBase64}')">
+                    <button class="btn-delete-photo" onclick="deletePhoto(${idx})">🗑️ 삭제 (${idx+1}/${images.length})</button>
+                `;
+                slider.appendChild(card);
+            });
+        }
+
+        // 이미지 압축 헬퍼 (Canvas 리사이징 -> DB 용량 다이어트)
+        function compressImage(file, maxWidth = 1200, quality = 0.75) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxWidth) {
+                                width = Math.round((width * maxWidth) / height);
+                                height = maxWidth;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                };
+            });
+        }
+
+        async function handleFileUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const statusMsg = document.getElementById("photo-status-msg");
+            statusMsg.innerText = "사진 압축 및 등록 중...";
+            statusMsg.style.color = "#8a735c";
+
+            if (!currentDbData[activeHallId]) {
+                currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [] };
+            }
+            if (!currentDbData[activeHallId].images) {
+                currentDbData[activeHallId].images = [];
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const compressedBase64 = await compressImage(files[i]);
+                currentDbData[activeHallId].images.push(compressedBase64);
+            }
+
+            renderPhotoSlider();
+            syncDataToDb(activeHallId, statusMsg);
+            event.target.value = ""; // reset input
+        }
+
+        function deletePhoto(index) {
+            if (!confirm("해당 견적서 사진을 삭제하시겠습니까?")) return;
+
+            const statusMsg = document.getElementById("photo-status-msg");
+            if (currentDbData[activeHallId] && currentDbData[activeHallId].images) {
+                currentDbData[activeHallId].images.splice(index, 1);
+                renderPhotoSlider();
+                syncDataToDb(activeHallId, statusMsg);
+            }
+        }
+
+        // 고화질 Zoom 확대 뷰어
+        function openZoomModal(imgSrc) {
+            const zoomImg = document.getElementById("zoom-img");
+            zoomImg.src = imgSrc;
+            currentZoomScale = 1.0;
+            zoomImg.style.transform = `scale(${currentZoomScale})`;
+            document.getElementById("zoom-modal").classList.remove("hidden");
+        }
+
+        function closeZoomModal() {
+            document.getElementById("zoom-modal").classList.add("hidden");
+        }
+
+        function toggleZoomIn(event) {
+            currentZoomScale = currentZoomScale === 1.0 ? 2.0 : 1.0;
+            document.getElementById("zoom-img").style.transform = `scale(${currentZoomScale})`;
+        }
+
+        function adjustZoom(delta) {
+            currentZoomScale += delta;
+            if (currentZoomScale < 0.5) currentZoomScale = 0.5;
+            if (currentZoomScale > 3.5) currentZoomScale = 3.5;
+            document.getElementById("zoom-img").style.transform = `scale(${currentZoomScale})`;
+        }
+
+        // ----------------------------------
+        // 조건 보기 & 한눈에 보기
         // ----------------------------------
         function checkInitialConditionsPopup() {
             const todayStr = new Date().toDateString();
             const hideUntil = localStorage.getItem("conditions_hide_today");
 
-            // 오늘 하루 보지 않기가 설정되어 있지 않은 경우 팝업 오픈
             if (hideUntil !== todayStr) {
-                openConditionsModal(true); // 자동 닫기 5초 타이머 작동
+                openConditionsModal(true);
             }
         }
 
         function openConditionsModal(isAutoClose = false) {
+            const msgEl = document.getElementById("auto-close-msg");
             document.getElementById("conditions-modal").classList.remove("hidden");
             
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
+            if (autoCloseInterval) clearInterval(autoCloseInterval);
 
-            // 최초 접속 시 5초 후 자동으로 닫힘
             if (isAutoClose) {
-                autoCloseTimer = setTimeout(() => {
-                    closeConditionsModal();
-                }, 5000);
+                let secondsLeft = 5;
+                msgEl.innerText = `⏳ ${secondsLeft}초 뒤에 해당 창이 닫혀요`;
+                msgEl.style.display = "block";
+
+                autoCloseInterval = setInterval(() => {
+                    secondsLeft--;
+                    if (secondsLeft > 0) {
+                        msgEl.innerText = `⏳ ${secondsLeft}초 뒤에 해당 창이 닫혀요`;
+                    } else {
+                        closeConditionsModal();
+                    }
+                }, 1000);
+            } else {
+                msgEl.style.display = "none";
             }
         }
 
         function closeConditionsModal() {
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
+            if (autoCloseInterval) clearInterval(autoCloseInterval);
             document.getElementById("conditions-modal").classList.add("hidden");
         }
 
@@ -1024,9 +1478,6 @@
             closeConditionsModal();
         }
 
-        // ----------------------------------
-        // 한눈에 보기 모달 제어
-        // ----------------------------------
         function openOverviewModal() {
             const container = document.getElementById("overview-list");
             container.innerHTML = "";
@@ -1042,18 +1493,21 @@
                 const data = currentDbData[hall.id];
                 const dateVal = data ? data.reservedAt : "";
                 const memoVal = data ? data.memo : "";
-                const hasData = !!dateVal || (memoVal && memoVal.trim() !== "");
+                const imgCount = data && data.images ? data.images.length : 0;
+                const hasData = !!dateVal || (memoVal && memoVal.trim() !== "") || imgCount > 0;
 
                 const card = document.createElement("div");
                 card.className = "overview-card " + (hasData ? "has-data" : "");
 
                 let formattedDate = dateVal ? formatKoreanDateTime(dateVal) : "일정 미정";
                 let memoHtml = memoVal && memoVal.trim() !== "" ? `<div class="overview-memo">${memoVal}</div>` : "";
+                let imgHtml = imgCount > 0 ? `<div style="font-size:0.78rem; color:var(--pink-text); margin-top:2px;">📷 견적 사진 ${imgCount}장 저장됨</div>` : "";
 
                 card.innerHTML = `
                     <div class="overview-title">${hall.name}</div>
                     <div class="overview-date">${formattedDate}</div>
                     ${memoHtml}
+                    ${imgHtml}
                 `;
                 container.appendChild(card);
             });

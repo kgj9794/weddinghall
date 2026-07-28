@@ -583,14 +583,14 @@
             width: 100%;
         }
 
-        /* 사진 고화질 확대 모달 */
+        /* 사진 고화질 확대 모달 UI & 상단 닫기 X 버튼 */
         .zoom-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.92);
             z-index: 20000;
             display: flex;
             flex-direction: column;
@@ -601,6 +601,32 @@
 
         .zoom-overlay.hidden {
             display: none;
+        }
+
+        .zoom-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20001;
+            backdrop-filter: blur(4px);
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .zoom-close-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
         }
 
         .zoom-img-wrapper {
@@ -694,6 +720,42 @@
             margin-top: 4px;
             white-space: pre-wrap;
             word-break: break-all;
+        }
+
+        /* 한눈에 보기 견적 사진 미리보기 전용 스타일 */
+        .overview-photo-btn {
+            font-size: 0.78rem;
+            color: var(--pink-text);
+            font-weight: bold;
+            margin-top: 6px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .overview-photo-list {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-top: 6px;
+            padding-bottom: 4px;
+            justify-content: center;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .overview-photo-thumb {
+            width: 58px;
+            height: 58px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--pink-border);
+            cursor: zoom-in;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            transition: transform 0.15s ease;
+        }
+
+        .overview-photo-thumb:hover {
+            transform: scale(1.08);
         }
 
         .condition-item {
@@ -983,8 +1045,10 @@
         </div>
     </div>
 
-    <!-- 2. 고화질 이미지 확대 뷰어 -->
+    <!-- 2. 고화질 이미지 확대 뷰어 (우측 상단 X 닫기 버튼 포함) -->
     <div id="zoom-modal" class="zoom-overlay hidden" onclick="closeZoomModal()">
+        <button class="zoom-close-btn" onclick="closeZoomModal(); event.stopPropagation();">✕</button>
+        
         <div class="zoom-img-wrapper" onclick="event.stopPropagation()">
             <img id="zoom-img" src="" alt="확대보기" onclick="toggleZoomIn(event)">
         </div>
@@ -1044,8 +1108,8 @@
     </div>
 
     <script>
-        // ★ 1단계에서 발급받으신 ImgBB API 키를 여기에 대입해 주세요.
-        const IMGBB_API_KEY = "1e05b643dab984322bd28f66c40c0729";
+        // ImgBB API Key
+        const IMGBB_API_KEY = "여기에_발급받은_IMGBB_API_KEY_입력";
         
         const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjRj4xtrQEHu3DBGwD0GZOUhHIvxKiyw7qwloZ4PhaXgmqq1g/exec";
         
@@ -1231,7 +1295,6 @@
                 });
         }
 
-        // DB 통합 저장 (POST방식)
         function syncDataToDb(hallId, statusElement) {
             const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [] };
 
@@ -1337,7 +1400,6 @@
             });
         }
 
-        // 초경량 용량 압축 (업로드 속도 극대화)
         function compressImage(file, maxWidth = 1000, quality = 0.7) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -1369,7 +1431,6 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // Base64 스트링에서 순수 이미지 부분만 분리
                         const dataUrl = canvas.toDataURL('image/jpeg', quality);
                         resolve(dataUrl.split(',')[1]);
                     };
@@ -1377,7 +1438,6 @@
             });
         }
 
-        // ImgBB API를 통한 초고속 직접 사진 업로드
         async function handleFileUpload(event) {
             const files = event.target.files;
             if (!files || files.length === 0) return;
@@ -1515,6 +1575,7 @@
             closeConditionsModal();
         }
 
+        // 한눈에 보기 모달 (견적서 사진 미리보기 및 바로가기 연동)
         function openOverviewModal() {
             const container = document.getElementById("overview-list");
             container.innerHTML = "";
@@ -1530,7 +1591,8 @@
                 const data = currentDbData[hall.id];
                 const dateVal = data ? data.reservedAt : "";
                 const memoVal = data ? data.memo : "";
-                const imgCount = data && data.images ? data.images.length : 0;
+                const images = data && Array.isArray(data.images) ? data.images : [];
+                const imgCount = images.length;
                 const hasData = !!dateVal || (memoVal && memoVal.trim() !== "") || imgCount > 0;
 
                 const card = document.createElement("div");
@@ -1538,7 +1600,22 @@
 
                 let formattedDate = dateVal ? formatKoreanDateTime(dateVal) : "일정 미정";
                 let memoHtml = memoVal && memoVal.trim() !== "" ? `<div class="overview-memo">${memoVal}</div>` : "";
-                let imgHtml = imgCount > 0 ? `<div style="font-size:0.78rem; color:var(--pink-text); margin-top:2px;">📷 견적 사진 ${imgCount}장 저장됨</div>` : "";
+                
+                let imgHtml = "";
+                if (imgCount > 0) {
+                    let thumbsHtml = images.map((url, idx) => 
+                        `<img src="${url}" class="overview-photo-thumb" alt="견적사진 ${idx+1}" onclick="openZoomModal('${url}')" title="클릭 시 고화질 확대">`
+                    ).join("");
+
+                    imgHtml = `
+                        <div class="overview-photo-btn" onclick="openPhotoModal('${hall.id}', '${hall.name}')">
+                            📷 견적 사진 ${imgCount}장 관리 / 전체보기 →
+                        </div>
+                        <div class="overview-photo-list">
+                            ${thumbsHtml}
+                        </div>
+                    `;
+                }
 
                 card.innerHTML = `
                     <div class="overview-title">${hall.name}</div>

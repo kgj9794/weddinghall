@@ -11,7 +11,7 @@
 </head>
 <body>
 
-    <!-- 비밀번호 잠금 화면 -->
+    <!-- 비밀번호 잠금 화면[span_9](start_span)[span_9](end_span) -->
     <div id="password-overlay" class="password-overlay">
         <div class="password-box">
             <div class="password-icon">🔒</div>
@@ -35,32 +35,20 @@
         </div>
     </div>
 
-    <!-- 인증 전까지 완전히 숨겨지는 메인 콘텐츠 영역 -->
+    <!-- 인증 전까지 완전히 숨겨지는 메인 콘텐츠 영역[span_10](start_span)[span_10](end_span) -->
     <div id="main-content" class="main-content hidden">
 
-        <!-- 📌 상단 스티키 고정 메인 헤더 영역 -->
+        <!-- 📌 상단 스티키 고정 메인 헤더 영역[span_11](start_span)[span_11](end_span) -->
         <div class="main-header-sticky">
-            <!-- 상단 네비게이션 바 -->
             <div class="top-nav">
-                <button class="top-nav-btn" onclick="openMapModal()">
-                    🗺️ 지도
-                </button>
-                <button class="top-nav-btn" onclick="openConditionsModal(false)">
-                    🎯 조건
-                </button>
-                <button class="top-nav-btn" onclick="openOverviewModal()">
-                    📋 한눈에 보기
-                </button>
-                <button class="top-nav-btn" onclick="openRecommendModal()">
-                    ✨ 제미나이 추천
-                </button>
+                <button class="top-nav-btn" onclick="openMapModal()">🗺️ 지도</button>
+                <button class="top-nav-btn" onclick="openConditionsModal(false)">🎯 조건</button>
+                <button class="top-nav-btn" onclick="openOverviewModal()">📋 한눈에 보기</button>
+                <button class="top-nav-btn" onclick="openRecommendModal()">✨ 제미나이 추천</button>
             </div>
 
             <header>
                 <h1>💍 웨딩홀 투어 리스트</h1>
-                <!--<p>투어 일정 및 견적 서류 DB 관리</p>-->
-                
-                <!-- 💍 실시간 D-Day 카운트다운 영역 -->
                 <div class="wedding-dday-container">
                     <div id="dday-text" class="dday-text">💍 결혼 예정일을 설정해 주세요</div>
                     <button class="btn-dday-edit" onclick="openWeddingDateModal()">⚙️ 설정</button>
@@ -91,6 +79,9 @@
                     </div>
                     <a href="http://thesaint.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
                     
+                    <!-- 📸 실시간 인스타그램 & 블로그 버튼 노출 영역 -->
+                    <div id="social-buttons-container-thesaint" class="social-btn-group"></div>
+
                     <div class="reservation-box" id="box-thesaint">
                         <label>📅 투어 일정 & 메모</label>
                         
@@ -105,6 +96,8 @@
                         <div class="edit-mode" id="edit-thesaint">
                             <input type="datetime-local" id="date-thesaint">
                             <textarea id="memo-thesaint" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <input type="text" id="insta-thesaint" placeholder="인스타그램 링크 입력 (https://instagram.com/...)" oninput="updateSocialPreview('thesaint')">
+                            <input type="text" id="blog-thesaint" placeholder="블로그 링크 입력 (https://blog.naver.com/...)" oninput="updateSocialPreview('thesaint')">
                             <button class="btn-save" onclick="saveReservation('thesaint')">저장</button>
                         </div>
 
@@ -134,6 +127,8 @@
                     </div>
                     <a href="http://www.theverde-g.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
 
+                    <div id="social-buttons-container-verde" class="social-btn-group"></div>
+
                     <div class="reservation-box" id="box-verde">
                         <label>📅 투어 일정 & 메모</label>
                         
@@ -148,6 +143,8 @@
                         <div class="edit-mode" id="edit-verde">
                             <input type="datetime-local" id="date-verde">
                             <textarea id="memo-verde" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <input type="text" id="insta-verde" placeholder="인스타그램 링크 입력 (https://instagram.com/...)" oninput="updateSocialPreview('verde')">
+                            <input type="text" id="blog-verde" placeholder="블로그 링크 입력 (https://blog.naver.com/...)" oninput="updateSocialPreview('verde')">
                             <button class="btn-save" onclick="saveReservation('verde')">저장</button>
                         </div>
 
@@ -177,6 +174,8 @@
                     </div>
                     <a href="https://www.dmcwedding.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
 
+                    <div id="social-buttons-container-dmc" class="social-btn-group"></div>
+
                     <div class="reservation-box" id="box-dmc">
                         <label>📅 투어 일정 & 메모</label>
                         
@@ -191,6 +190,8 @@
                         <div class="edit-mode" id="edit-dmc">
                             <input type="datetime-local" id="date-dmc">
                             <textarea id="memo-dmc" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <input type="text" id="insta-dmc" placeholder="인스타그램 링크 입력 (https://instagram.com/...)" oninput="updateSocialPreview('dmc')">
+                            <input type="text" id="blog-dmc" placeholder="블로그 링크 입력 (https://blog.naver.com/...)" oninput="updateSocialPreview('dmc')">
                             <button class="btn-save" onclick="saveReservation('dmc')">저장</button>
                         </div>
 
@@ -220,6 +221,8 @@
                     </div>
                     <a href="http://www.wocon.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
 
+                    <div id="social-buttons-container-worldcup" class="social-btn-group"></div>
+
                     <div class="reservation-box" id="box-worldcup">
                         <label>📅 투어 일정 & 메모</label>
                         
@@ -234,6 +237,8 @@
                         <div class="edit-mode" id="edit-worldcup">
                             <input type="datetime-local" id="date-worldcup">
                             <textarea id="memo-worldcup" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <input type="text" id="insta-worldcup" placeholder="인스타그램 링크 입력 (https://instagram.com/...)" oninput="updateSocialPreview('worldcup')">
+                            <input type="text" id="blog-worldcup" placeholder="블로그 링크 입력 (https://blog.naver.com/...)" oninput="updateSocialPreview('worldcup')">
                             <button class="btn-save" onclick="saveReservation('worldcup')">저장</button>
                         </div>
 
@@ -246,14 +251,13 @@
 
     </div>
 
-    <!-- 모달 1: 견적 사진 슬라이더 모달 -->
+    <!-- 모달 창들 (사진, 줌, 조건, 한눈에 보기, 지도, 추천, 예식일 설정) -->
     <div id="photo-modal" class="modal-overlay hidden" onclick="closePhotoModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2 id="photo-modal-title">📄 견적서 사진 관리</h2>
                 <button class="modal-close-btn" onclick="closePhotoModal()">✕</button>
             </div>
-            
             <div class="photo-modal-tools">
                 <span style="font-size:0.83rem; color:var(--text-sub);">사진을 가로로 넘겨보세요</span>
                 <label class="btn-upload-label">
@@ -261,31 +265,24 @@
                     <input type="file" id="file-upload-input" accept="image/*" multiple style="display:none;" onchange="handleFileUpload(event)">
                 </label>
             </div>
-
             <div id="photo-slider" class="photo-slider"></div>
-
             <div id="photo-status-msg" class="status-msg"></div>
-
             <div class="modal-footer">
                 <button class="btn-modal-confirm" style="width:100%;" onclick="closePhotoModal()">닫기</button>
             </div>
         </div>
     </div>
 
-    <!-- 모달 2: 고화질 이미지 확대 뷰어 -->
     <div id="zoom-modal" class="zoom-overlay hidden" onclick="closeZoomModal()">
         <button class="zoom-close-btn" onclick="closeZoomModal(); event.stopPropagation();">✕</button>
         <div class="zoom-counter" id="zoom-counter">1 / 1</div>
-        
         <button class="zoom-nav-btn prev" id="zoom-prev-btn" onclick="prevZoomImage(event)">❮</button>
         <button class="zoom-nav-btn next" id="zoom-next-btn" onclick="nextZoomImage(event)">❯</button>
-
         <div class="zoom-img-wrapper" onclick="event.stopPropagation()">
             <img id="zoom-img" src="" alt="확대보기" onclick="toggleZoomIn(event)">
         </div>
     </div>
 
-    <!-- 모달 3: 나의 예식 조건 모달 -->
     <div id="conditions-modal" class="modal-overlay hidden" onclick="closeConditionsModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -293,26 +290,9 @@
                 <button class="modal-close-btn" onclick="closeConditionsModal()">✕</button>
             </div>
             <div class="conditions-list">
-                <div class="condition-item">
-                    <strong>📅 예식일 :</strong>
-                    <span>27년 12월 토/일 희망<br>(일요일 선호 [12/4 토, 12/5 일])</span>
-                </div>
-                <div class="condition-item">
-                    <strong>⏰ 시간 :</strong>
-                    <span>11시 ~ 14시 골든타임</span>
-                </div>
-                <div class="condition-item">
-                    <strong>👥 보증인원 :</strong>
-                    <span>200명 ~ 250명</span>
-                </div>
-                <div class="condition-item">
-                    <strong>🏃 투어방문 :</strong>
-                    <span>8월 주말 (토요일 선호)</span>
-                </div>
-                <div class="condition-item">
-                    <strong>💰 예산 :</strong>
-                    <span>2,500만원</span>
-                </div>
+                <div class="condition-item"><strong>📅 예식일 :</strong> <span>27년 12월 토/일 희망</span></div>
+                <div class="condition-item"><strong>⏰ 시간 :</strong> <span>11시 ~ 14시 골든타임</span></div>
+                <div class="condition-item"><strong>👥 보증인원 :</strong> <span>200명 ~ 250명</span></div>
             </div>
             <div id="auto-close-msg" class="auto-close-msg" style="display: none;"></div>
             <div class="modal-footer">
@@ -322,7 +302,6 @@
         </div>
     </div>
 
-    <!-- 모달 4: 한눈에 보기 모달 -->
     <div id="overview-modal" class="modal-overlay hidden" onclick="closeOverviewModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -333,7 +312,6 @@
         </div>
     </div>
 
-    <!-- 모달 5: 구글 지도 모달 (iframe) -->
     <div id="map-modal" class="modal-overlay hidden" onclick="closeMapModal()">
         <div class="modal-content map-modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -346,7 +324,6 @@
         </div>
     </div>
 
-    <!-- 모달 6: ✨ 제미나이 추천 모달 -->
     <div id="recommend-modal" class="modal-overlay hidden" onclick="closeRecommendModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -354,31 +331,11 @@
                 <button class="modal-close-btn" onclick="closeRecommendModal()">✕</button>
             </div>
             <div class="recommend-list">
-                <div class="recommend-item">
-                    <strong>[2026년 10월 (예약 오픈 1~2달 전)]</strong>
-                    <ul>
-                        <li>후보 웨딩홀을 3~5곳으로 압축합니다.</li>
-                        <li>각 웨딩홀의 정확한 '12월 예약 오픈일'을 전화로 미리 확인합니다.</li>
-                    </ul>
-                </div>
-                <div class="recommend-item">
-                    <strong>[2026년 11월 초 (오픈 직전)]</strong>
-                    <ul>
-                        <li>오픈일에 맞춰 주말 상담 예약을 잡기 위해 '웨딩홀 투어 예약(일명 홀팅)'을 시도합니다.</li>
-                        <li>최근 인기 홀은 투어 예약 잡기 자체가 매우 치열합니다.</li>
-                    </ul>
-                </div>
-                <div class="recommend-item">
-                    <strong>[2026년 11월 말 ~ 12월 초 (오픈 당일/직후)]</strong>
-                    <ul>
-                        <li>오픈하자마자 첫 주말에 투어를 돌고 당일 계약을 진행합니다.</li>
-                    </ul>
-                </div>
+                <div class="recommend-item"><strong>[팁]</strong><ul><li>후보 웨딩홀 압축 및 오픈일 체크</li></ul></div>
             </div>
         </div>
     </div>
 
-    <!-- 📅 모달 7: 결혼 예정일 D-Day 설정 모달 -->
     <div id="wedding-date-modal" class="modal-overlay hidden" onclick="closeWeddingDateModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -386,7 +343,7 @@
                 <button class="modal-close-btn" onclick="closeWeddingDateModal()">✕</button>
             </div>
             <div class="dday-form">
-                <p style="font-size:0.83rem; color:var(--text-sub); line-height:1.45;">예정일을 지정하면 메인 화면에 D-Day 실시간 카운트다운이 표시됩니다.</p>
+                <p style="font-size:0.83rem; color:var(--text-sub);">예정일을 지정하면 메인 화면에 D-Day 실시간 카운트다운이 표시됩니다.</p>
                 <div class="dday-input-group">
                     <label>📅 결혼예정일 및 시간</label>
                     <input type="datetime-local" id="wedding-date-input">
@@ -398,7 +355,6 @@
         </div>
     </div>
 
-    <!-- JS 분리 연결 -->
     <script src="script.js" defer></script>
 </body>
 </html>

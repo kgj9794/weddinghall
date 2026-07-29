@@ -42,6 +42,9 @@
         <div class="main-header-sticky">
             <!-- 상단 네비게이션 바 -->
             <div class="top-nav">
+                <button class="top-nav-btn" onclick="openRecommendModal()">
+                    ✨ 제미나이 추천
+                </button>
                 <button class="top-nav-btn" onclick="openMapModal()">
                     🗺️ 지도
                 </button>
@@ -333,6 +336,38 @@
             </div>
             <div class="map-iframe-wrapper">
                 <iframe src="https://www.google.com/maps/d/embed?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- 모달 6: ✨ 제미나이 추천 모달 -->
+    <div id="recommend-modal" class="modal-overlay hidden" onclick="closeRecommendModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>✨ 제미나이 추천 팁</h2>
+                <button class="modal-close-btn" onclick="closeRecommendModal()">✕</button>
+            </div>
+            <div class="recommend-list">
+                <div class="recommend-item">
+                    <strong>[2026년 10월 (예약 오픈 1~2달 전)]</strong>
+                    <ul>
+                        <li>후보 웨딩홀을 3~5곳으로 압축합니다.</li>
+                        <li>각 웨딩홀의 정확한 '12월 예약 오픈일'을 전화로 미리 확인합니다.</li>
+                    </ul>
+                </div>
+                <div class="recommend-item">
+                    <strong>[2026년 11월 초 (오픈 직전)]</strong>
+                    <ul>
+                        <li>오픈일에 맞춰 주말 상담 예약을 잡기 위해 '웨딩홀 투어 예약(일명 홀팅)'을 시도합니다.</li>
+                        <li>최근 인기 홀은 투어 예약 잡기 자체가 매우 치열합니다.</li>
+                    </ul>
+                </div>
+                <div class="recommend-item">
+                    <strong>[2026년 11월 말 ~ 12월 초 (오픈 당일/직후)]</strong>
+                    <ul>
+                        <li>오픈하자마자 첫 주말에 투어를 돌고 당일 계약을 진행합니다.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

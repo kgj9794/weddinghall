@@ -6,18 +6,27 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjR
 let currentDbData = {};
 let activeHallId = null;
 let autoCloseInterval = null;
-let currentZoomScale = 1.0;
-let currentZoomIndex = 0; // 확대 뷰어 내 현재 사진 인덱스
 
-// 핀치 투 줌 감지용 변수
+// 확대 및 이동 좌표 상태 관리
+let currentZoomScale = 1.0;
+let currentTranslateX = 0;
+let currentTranslateY = 0;
+let currentZoomIndex = 0;
+
+// 핀치 줌 및 자유 이동 제스처 감지 변수
 let initialPinchDistance = 0;
 let initialScale = 1.0;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let initialTranslateX = 0;
+let initialTranslateY = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
     initTheme();      // 야간 시간대 다크모드 자동 초기화
     checkAuth();       // 🔒 인증 확인 후 데이터 로드 진입
     initZoomKeyNav();  // 확대 모달 키보드 단축키 지원
-    initPinchZoom();   // 🤌 핀치 투 줌(두 손가락 확대/축소) 초기화
+    initPinchZoom();   // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
 });
 
 // ----------------------------------
@@ -518,8 +527,22 @@ function deletePhoto(index) {
 }
 
 // ----------------------------------
-// 🔍 고화질 Zoom 확대 뷰어 & 핀치 투 줌
+// 🔍 고화질 Zoom 확대 뷰어 & 자유 이동(Pan)
 // ----------------------------------
+function applyZoomTransform() {
+    const zoomImg = document.getElementById("zoom-img");
+    if (zoomImg) {
+        zoomImg.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentZoomScale})`;
+    }
+}
+
+function resetZoom() {
+    currentZoomScale = 1.0;
+    currentTranslateX = 0;
+    currentTranslateY = 0;
+    applyZoomTransform();
+}
+
 function openZoomModal(index = 0) {
     if (!activeHallId || !currentDbData[activeHallId] || !currentDbData[activeHallId].images) return;
     
@@ -546,8 +569,7 @@ function updateZoomView() {
     const nextBtn = document.getElementById("zoom-next-btn");
 
     zoomImg.src = images[currentZoomIndex];
-    currentZoomScale = 1.0;
-    zoomImg.style.transform = `scale(${currentZoomScale})`;
+    resetZoom();
 
     if (counter) counter.innerText = `${currentZoomIndex + 1} / ${images.length}`;
 
@@ -574,28 +596,39 @@ function nextZoomImage(event) {
 
 function closeZoomModal() {
     document.getElementById("zoom-modal").classList.add("hidden");
-    currentZoomScale = 1.0;
-    const zoomImg = document.getElementById("zoom-img");
-    if (zoomImg) zoomImg.style.transform = `scale(1.0)`;
+    resetZoom();
     updateBodyScroll();
 }
 
 function toggleZoomIn(event) {
-    currentZoomScale = currentZoomScale === 1.0 ? 2.0 : 1.0;
-    document.getElementById("zoom-img").style.transform = `scale(${currentZoomScale})`;
+    if (currentZoomScale === 1.0) {
+        currentZoomScale = 2.0;
+    } else {
+        resetZoom();
+        return;
+    }
+    applyZoomTransform();
 }
 
-// 🤌 핀치 투 줌 (두 손가락 확대/축소 제스처)
+// 🤌 핀치 투 줌 및 확대 상태 손가락/마우스 자유 드래그 이동
 function initPinchZoom() {
     const wrapper = document.querySelector(".zoom-img-wrapper");
     const zoomImg = document.getElementById("zoom-img");
 
     if (!wrapper || !zoomImg) return;
 
+    // 모바일 터치 이벤트 (2손가락 핀치 줌 / 1손가락 자유 드래그)
     wrapper.addEventListener("touchstart", function(e) {
         if (e.touches.length === 2) {
+            isDragging = false;
             initialPinchDistance = getTouchDistance(e.touches);
             initialScale = currentZoomScale;
+        } else if (e.touches.length === 1 && currentZoomScale > 1.0) {
+            isDragging = true;
+            dragStartX = e.touches[0].clientX;
+            dragStartY = e.touches[0].clientY;
+            initialTranslateX = currentTranslateX;
+            initialTranslateY = currentTranslateY;
         }
     }, { passive: true });
 
@@ -604,19 +637,54 @@ function initPinchZoom() {
             const currentDistance = getTouchDistance(e.touches);
             if (currentDistance > 0) {
                 let newScale = initialScale * (currentDistance / initialPinchDistance);
-                // 최소 1.0배 ~ 최대 4.0배 범위 제한
-                newScale = Math.max(1.0, Math.min(newScale, 4.0));
+                newScale = Math.max(1.0, Math.min(newScale, 4.0)); // 1.0배 ~ 4.0배
                 currentZoomScale = newScale;
-                zoomImg.style.transform = `scale(${currentZoomScale})`;
+                
+                if (currentZoomScale === 1.0) {
+                    currentTranslateX = 0;
+                    currentTranslateY = 0;
+                }
+                applyZoomTransform();
             }
+        } else if (e.touches.length === 1 && isDragging && currentZoomScale > 1.0) {
+            const deltaX = e.touches[0].clientX - dragStartX;
+            const deltaY = e.touches[0].clientY - dragStartY;
+            currentTranslateX = initialTranslateX + deltaX;
+            currentTranslateY = initialTranslateY + deltaY;
+            applyZoomTransform();
         }
     }, { passive: true });
 
     wrapper.addEventListener("touchend", function(e) {
-        if (e.touches.length < 2) {
-            initialPinchDistance = 0;
-        }
+        if (e.touches.length < 2) initialPinchDistance = 0;
+        if (e.touches.length === 0) isDragging = false;
     }, { passive: true });
+
+    // PC 마우스 드래그 이동 대응
+    zoomImg.addEventListener("mousedown", function(e) {
+        if (currentZoomScale > 1.0) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            initialTranslateX = currentTranslateX;
+            initialTranslateY = currentTranslateY;
+            e.preventDefault();
+        }
+    });
+
+    window.addEventListener("mousemove", function(e) {
+        if (isDragging && currentZoomScale > 1.0) {
+            const deltaX = e.clientX - dragStartX;
+            const deltaY = e.clientY - dragStartY;
+            currentTranslateX = initialTranslateX + deltaX;
+            currentTranslateY = initialTranslateY + deltaY;
+            applyZoomTransform();
+        }
+    });
+
+    window.addEventListener("mouseup", function() {
+        isDragging = false;
+    });
 }
 
 function getTouchDistance(touches) {

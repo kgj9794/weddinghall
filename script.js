@@ -309,7 +309,15 @@ function setSavedState(hallId, dateVal, memoVal, imgArr) {
         }
     }
 
-    if (box) box.classList.add("is-saved");
+    if (box) {
+        box.classList.add("is-saved");
+        // 🟢 일시 지정 유무에 따른 초록색 배경(has-date) 클래스 토글
+        if (cleanDateVal) {
+            box.classList.add("has-date");
+        } else {
+            box.classList.remove("has-date");
+        }
+    }
 
     if (viewDiv) viewDiv.style.display = "flex";
     if (editDiv) editDiv.style.display = "none";
@@ -322,7 +330,10 @@ function enableEdit(hallId) {
     const status = document.getElementById("status-" + hallId);
     const box = document.getElementById("box-" + hallId);
 
-    if (box) box.classList.remove("is-saved");
+    if (box) {
+        box.classList.remove("is-saved");
+        box.classList.remove("has-date");
+    }
 
     if (viewDiv) viewDiv.style.display = "none";
     if (editDiv) editDiv.style.display = "flex";
@@ -848,10 +859,17 @@ function openOverviewModal() {
         const memoVal = data ? data.memo : "";
         const images = data && Array.isArray(data.images) ? data.images : [];
         const imgCount = images.length;
-        const hasData = !!dateVal || (memoVal && memoVal.trim() !== "") || imgCount > 0;
+        const hasDate = !!dateVal;
+        const hasData = hasDate || (memoVal && memoVal.trim() !== "") || imgCount > 0;
 
         const card = document.createElement("div");
-        card.className = "overview-card " + (hasData ? "has-data" : "");
+        let cardClass = "overview-card";
+        if (hasDate) {
+            cardClass += " has-date";
+        } else if (hasData) {
+            cardClass += " has-data";
+        }
+        card.className = cardClass;
 
         let formattedDate = dateVal ? formatKoreanDateTime(dateVal) : "일정 미정";
         let memoHtml = memoVal && memoVal.trim() !== "" ? `<div class="overview-memo">${memoVal}</div>` : "";

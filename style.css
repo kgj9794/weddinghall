@@ -68,7 +68,21 @@ body {
 }
 
 /* ----------------------------------
-   🔒 비밀번호 잠금 화면 스타일 (모바일 중앙 정렬)
+   🛡️ 보안 강화를 위한 메인 콘텐츠 숨김
+---------------------------------- */
+.main-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-content.hidden {
+    display: none !important;
+}
+
+/* ----------------------------------
+   🔒 비밀번호 잠금 화면 스타일
 ---------------------------------- */
 .password-overlay {
     position: fixed;
@@ -123,7 +137,6 @@ body {
     line-height: 1.45;
 }
 
-/* 세로 정렬 및 100% 가로 폭으로 변경 */
 .password-input-group {
     display: flex;
     flex-direction: column;
@@ -187,21 +200,21 @@ body {
     overflow-x: auto;
     white-space: nowrap;
     padding: 4px 2px 8px 2px;
-    -webkit-overflow-scrolling: touch; /* iOS 터치 스크롤 부드럽게 */
-    scrollbar-width: none; /* Firefox 스크롤바 숨김 */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
 }
 
 .top-nav::-webkit-scrollbar {
-    display: none; /* Chrome, Safari 스크롤바 숨김 */
+    display: none;
 }
 
 .top-nav-btn {
-    flex: 0 0 auto; /* 버튼 크기 축소 방지 */
+    flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 8px 13px;
+    padding: 8px 14px;
     background-color: var(--nav-btn-bg);
     border: 1px solid var(--border-color);
     border-radius: 20px;

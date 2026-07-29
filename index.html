@@ -38,23 +38,26 @@
     <!-- 인증 전까지 완전히 숨겨지는 메인 콘텐츠 영역 -->
     <div id="main-content" class="main-content hidden">
 
-        <!-- 상단 네비게이션 바 -->
-        <div class="top-nav">
-            <a href="https://www.google.com/maps/d/edit?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ&usp=sharing" target="_blank" rel="noopener noreferrer" class="top-nav-btn">
-                🗺️ 지도
-            </a>
-            <button class="top-nav-btn" onclick="openConditionsModal(false)">
-                🎯 조건
-            </button>
-            <button class="top-nav-btn" onclick="openOverviewModal()">
-                📋 한눈에 보기
-            </button>
-        </div>
+        <!-- 📌 상단 고정 메인 헤더 영역 -->
+        <div class="main-header-sticky">
+            <!-- 상단 네비게이션 바 -->
+            <div class="top-nav">
+                <a href="https://www.google.com/maps/d/edit?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ&usp=sharing" target="_blank" rel="noopener noreferrer" class="top-nav-btn">
+                    🗺️ 지도
+                </a>
+                <button class="top-nav-btn" onclick="openConditionsModal(false)">
+                    🎯 조건
+                </button>
+                <button class="top-nav-btn" onclick="openOverviewModal()">
+                    📋 한눈에 보기
+                </button>
+            </div>
 
-        <header>
-            <h1>💍 웨딩홀 투어 리스트</h1>
-            <p>투어 일정 및 견적 서류 DB 관리</p>
-        </header>
+            <header>
+                <h1>💍 웨딩홀 투어 리스트</h1>
+                <p>투어 일정 및 견적 서류 DB 관리</p>
+            </header>
+        </div>
 
         <div class="container">
 
@@ -306,7 +309,7 @@
         </div>
     </div>
 
-    <!-- 모달 4: 한눈에 보기 모달 -->
+    <!-- 모달 4: 한눈에 보기 모달 (하단 버튼 제거 & 상단 헤더 고정) -->
     <div id="overview-modal" class="modal-overlay hidden" onclick="closeOverviewModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -314,9 +317,6 @@
                 <button class="modal-close-btn" onclick="closeOverviewModal()">✕</button>
             </div>
             <div class="overview-list" id="overview-list"></div>
-            <div class="modal-footer">
-                <button class="btn-modal-confirm" style="width:100%;" onclick="closeOverviewModal()">닫기</button>
-            </div>
         </div>
     </div>
 

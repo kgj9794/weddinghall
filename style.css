@@ -681,16 +681,6 @@ header p {
     resize: vertical;
 }
 
-.notif-perm-warning {
-    font-size: 0.8rem;
-    color: #d32f2f;
-    background-color: #ffebee;
-    padding: 8px;
-    border-radius: 6px;
-    text-align: center;
-    line-height: 1.4;
-}
-
 .btn-delete-notif {
     padding: 8px 14px;
     background-color: #d32f2f;

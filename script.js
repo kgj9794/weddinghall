@@ -7,10 +7,16 @@ let currentDbData = {};
 let activeHallId = null;
 let autoCloseInterval = null;
 let currentZoomScale = 1.0;
+let currentZoomIndex = 0; // 확대 뷰어 내 현재 사진 인덱스
+
+// 터치 스와이프 감지용 변수
+let zoomTouchStartX = 0;
+let zoomTouchEndX = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
     initTheme(); // 야간 시간대 다크모드 자동 초기화
     checkAuth();  // 🔒 인증 확인 후 데이터 로드 진입
+    initZoomKeyNav(); // 확대 모달 키보드 단축키 지원
 });
 
 // ----------------------------------
@@ -28,7 +34,6 @@ function checkAuth() {
         updateBodyScroll();
         loadFromLocalStorage();
         
-        // 인증된 상태일 때만 실제 DB 데이터를 Fetch
         const loader = document.getElementById("loader");
         if (loader) loader.classList.remove("hidden");
         loadReservations();
@@ -75,7 +80,7 @@ function verifyPassword() {
             localStorage.setItem("wedding_tour_authed", "true");
             if (errorMsg) errorMsg.innerText = "";
             input.value = "";
-            checkAuth(); // 인증 성공 시 메인 화면 보이기 및 DB 데이터 로드 시작
+            checkAuth();
         } else {
             if (errorMsg) {
                 errorMsg.style.color = "#d32f2f";
@@ -102,7 +107,6 @@ function initTheme() {
     if (savedTheme) {
         setTheme(savedTheme);
     } else {
-        // 저녁시간 (19시 ~ 07시) 일 때 다크모드 자동 설정
         const currentHour = new Date().getHours();
         const isNight = currentHour >= 19 || currentHour < 7;
         setTheme(isNight ? "dark" : "light");
@@ -402,7 +406,7 @@ function renderPhotoSlider() {
         const card = document.createElement("div");
         card.className = "photo-slide-card";
         card.innerHTML = `
-            <img src="${imgUrl}" alt="견적서 ${idx+1}" onclick="openZoomModal('${imgUrl}')">
+            <img src="${imgUrl}" alt="견적서 ${idx+1}" onclick="openZoomModal(${idx})">
             <button class="btn-delete-photo" onclick="deletePhoto(${idx})">🗑️ 삭제 (${idx+1}/${images.length})</button>
         `;
         slider.appendChild(card);
@@ -447,7 +451,6 @@ function compressImage(file, maxWidth = 1000, quality = 0.7) {
     });
 }
 
-// 다중 및 중복 선택 업로드 지원
 async function handleFileUpload(event) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -486,7 +489,7 @@ async function handleFileUpload(event) {
             
             if (result.status === "success" && result.url) {
                 currentDbData[activeHallId].images.push(result.url);
-                renderPhotoSlider(); // 1장씩 완료되는 대로 즉시 슬라이더 갱신
+                renderPhotoSlider();
             } else {
                 throw new Error(result.message || "업로드 실패");
             }
@@ -513,14 +516,61 @@ function deletePhoto(index) {
     }
 }
 
-// 고화질 Zoom 확대 뷰어
-function openZoomModal(imgSrc) {
-    const zoomImg = document.getElementById("zoom-img");
-    zoomImg.src = imgSrc;
-    currentZoomScale = 1.0;
-    zoomImg.style.transform = `scale(${currentZoomScale})`;
+// ----------------------------------
+// 🔍 고화질 Zoom 확대 뷰어 & 슬라이더 탐색
+// ----------------------------------
+function openZoomModal(index = 0) {
+    if (!activeHallId || !currentDbData[activeHallId] || !currentDbData[activeHallId].images) return;
+    
+    currentZoomIndex = index;
+    updateZoomView();
+
     document.getElementById("zoom-modal").classList.remove("hidden");
     updateBodyScroll();
+}
+
+function updateZoomView() {
+    const images = (currentDbData[activeHallId] && currentDbData[activeHallId].images) ? currentDbData[activeHallId].images : [];
+    if (images.length === 0) {
+        closeZoomModal();
+        return;
+    }
+
+    // 인덱스 범위 안전 보장
+    if (currentZoomIndex < 0) currentZoomIndex = images.length - 1;
+    if (currentZoomIndex >= images.length) currentZoomIndex = 0;
+
+    const zoomImg = document.getElementById("zoom-img");
+    const counter = document.getElementById("zoom-counter");
+    const prevBtn = document.getElementById("zoom-prev-btn");
+    const nextBtn = document.getElementById("zoom-next-btn");
+
+    zoomImg.src = images[currentZoomIndex];
+    currentZoomScale = 1.0;
+    zoomImg.style.transform = `scale(${currentZoomScale})`;
+
+    if (counter) counter.innerText = `${currentZoomIndex + 1} / ${images.length}`;
+
+    // 사진이 1장만 있으면 이동 버튼 숨김 처리
+    if (images.length <= 1) {
+        if (prevBtn) prevBtn.style.display = "none";
+        if (nextBtn) nextBtn.style.display = "none";
+    } else {
+        if (prevBtn) prevBtn.style.display = "flex";
+        if (nextBtn) nextBtn.style.display = "flex";
+    }
+}
+
+function prevZoomImage(event) {
+    if (event) event.stopPropagation();
+    currentZoomIndex--;
+    updateZoomView();
+}
+
+function nextZoomImage(event) {
+    if (event) event.stopPropagation();
+    currentZoomIndex++;
+    updateZoomView();
 }
 
 function closeZoomModal() {
@@ -531,6 +581,45 @@ function closeZoomModal() {
 function toggleZoomIn(event) {
     currentZoomScale = currentZoomScale === 1.0 ? 2.0 : 1.0;
     document.getElementById("zoom-img").style.transform = `scale(${currentZoomScale})`;
+}
+
+// 모바일 터치 스와이프 감지 로직
+function handleZoomTouchStart(event) {
+    if (event.touches && event.touches.length > 0) {
+        zoomTouchStartX = event.touches[0].clientX;
+    }
+}
+
+function handleZoomTouchEnd(event) {
+    if (event.changedTouches && event.changedTouches.length > 0) {
+        zoomTouchEndX = event.changedTouches[0].clientX;
+        const diffX = zoomTouchEndX - zoomTouchStartX;
+
+        // 40px 이상 좌/우 스와이프 시 사진 이동
+        if (Math.abs(diffX) > 40) {
+            if (diffX < 0) {
+                nextZoomImage(); // 왼쪽으로 쓱 밀면 다음 사진
+            } else {
+                prevZoomImage(); // 오른쪽으로 쓱 밀면 이전 사진
+            }
+        }
+    }
+}
+
+// 키보드 방향키 탐색 기능 (PC 대응)
+function initZoomKeyNav() {
+    document.addEventListener("keydown", function(e) {
+        const zoomModal = document.getElementById("zoom-modal");
+        if (zoomModal && !zoomModal.classList.contains("hidden")) {
+            if (e.key === "ArrowLeft") {
+                prevZoomImage();
+            } else if (e.key === "ArrowRight") {
+                nextZoomImage();
+            } else if (e.key === "Escape") {
+                closeZoomModal();
+            }
+        }
+    });
 }
 
 // ----------------------------------

@@ -256,9 +256,14 @@
         </div>
     </div>
 
-    <!-- 모달 2: 고화질 이미지 확대 뷰어 -->
-    <div id="zoom-modal" class="zoom-overlay hidden" onclick="closeZoomModal()">
+    <!-- 모달 2: 고화질 이미지 확대 뷰어 (슬라이드 & 카운터 기능 추가) -->
+    <div id="zoom-modal" class="zoom-overlay hidden" onclick="closeZoomModal()" ontouchstart="handleZoomTouchStart(event)" ontouchend="handleZoomTouchEnd(event)">
         <button class="zoom-close-btn" onclick="closeZoomModal(); event.stopPropagation();">✕</button>
+        <div class="zoom-counter" id="zoom-counter">1 / 1</div>
+        
+        <button class="zoom-nav-btn prev" id="zoom-prev-btn" onclick="prevZoomImage(event)">❮</button>
+        <button class="zoom-nav-btn next" id="zoom-next-btn" onclick="nextZoomImage(event)">❯</button>
+
         <div class="zoom-img-wrapper" onclick="event.stopPropagation()">
             <img id="zoom-img" src="" alt="확대보기" onclick="toggleZoomIn(event)">
         </div>

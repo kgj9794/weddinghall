@@ -10,9 +10,90 @@ let currentZoomScale = 1.0;
 
 document.addEventListener("DOMContentLoaded", function() {
     initTheme(); // 시간 및 저장값 기반 다크모드 초기화
+    checkAuth();  // 🔒 접속 비밀번호 인증 확인
     loadFromLocalStorage();
     loadReservations();
 });
+
+// ----------------------------------
+// 🔒 접속 비밀번호 서버 인증 관리
+// ----------------------------------
+function checkAuth() {
+    const isAuthed = localStorage.getItem("wedding_tour_authed");
+    const overlay = document.getElementById("password-overlay");
+    
+    if (isAuthed === "true") {
+        if (overlay) overlay.classList.add("hidden");
+        updateBodyScroll();
+    } else {
+        if (overlay) {
+            overlay.classList.remove("hidden");
+            updateBodyScroll();
+            setTimeout(() => {
+                const input = document.getElementById("app-password-input");
+                if (input) input.focus();
+            }, 100);
+        }
+    }
+}
+
+function verifyPassword() {
+    const input = document.getElementById("app-password-input");
+    const errorMsg = document.getElementById("password-error");
+    const overlay = document.getElementById("password-overlay");
+
+    if (!input || !input.value.trim()) {
+        if (errorMsg) errorMsg.innerText = "비밀번호를 입력해 주세요.";
+        return;
+    }
+
+    if (errorMsg) {
+        errorMsg.style.color = "var(--primary-color)";
+        errorMsg.innerText = "⏳ 비밀번호 확인 중...";
+    }
+
+    const payload = {
+        action: "verifyPassword",
+        password: input.value
+    };
+
+    fetch(GAS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            localStorage.setItem("wedding_tour_authed", "true");
+            if (errorMsg) errorMsg.innerText = "";
+            if (overlay) overlay.classList.add("hidden");
+            input.value = "";
+            updateBodyScroll();
+        } else {
+            if (errorMsg) {
+                errorMsg.style.color = "#d32f2f";
+                errorMsg.innerText = "❌ " + (data.message || "비밀번호가 올바르지 않습니다.");
+            }
+            input.value = "";
+            input.focus();
+        }
+    })
+    .catch(err => {
+        if (errorMsg) {
+            errorMsg.style.color = "#d32f2f";
+            errorMsg.innerText = "⚠️ 서버 연결 실패. 다시 시도해 주세요.";
+        }
+        console.error(err);
+    });
+}
+
+function lockApp() {
+    localStorage.removeItem("wedding_tour_authed");
+    const errorMsg = document.getElementById("password-error");
+    if (errorMsg) errorMsg.innerText = "";
+    checkAuth();
+}
 
 // ----------------------------------
 // 라이트 / 다크모드 테마 관리
@@ -47,10 +128,12 @@ function toggleTheme() {
     setTheme(newTheme);
 }
 
-// 팝업 열림 시 배경 메인 화면 스크롤 제어
+// 팝업/잠금창 열림 시 배경 메인 화면 스크롤 제어
 function updateBodyScroll() {
+    const isLocked = !document.getElementById("password-overlay")?.classList.contains("hidden");
     const hasVisibleModal = document.querySelector('.modal-overlay:not(.hidden), .zoom-overlay:not(.hidden)');
-    if (hasVisibleModal) {
+    
+    if (isLocked || hasVisibleModal) {
         document.body.style.overflow = 'hidden';
     } else {
         document.body.style.overflow = '';
@@ -426,7 +509,6 @@ async function handleFileUpload(event) {
         statusMsg.innerText = "❌ 업로드 실패: " + err.message;
         statusMsg.style.color = "#d32f2f";
     } finally {
-        // 파일 선택 인풋 초기화 -> 같은 사진을 다시 선택해도 onChange 이벤트 발생
         event.target.value = "";
     }
 }

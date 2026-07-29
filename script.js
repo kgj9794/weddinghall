@@ -1,4 +1,4 @@
-// 비밀 토큰 (GAS의 SECRET_TOKEN과 일치해야 함)
+// 비밀 토큰 (GAS의 SECRET_TOKEN과 일치해야 함)[span_0](start_span)[span_0](end_span)
 const AUTH_TOKEN = "wedding_tour_secret_2026";
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjRj4xtrQEHu3DBGwD0GZOUhHIvxKiyw7qwloZ4PhaXgmqq1g/exec";
@@ -8,13 +8,13 @@ let activeHallId = null;
 let autoCloseInterval = null;
 let targetWeddingDate = null;
 
-// 확대 및 이동 좌표 상태 관리
+// 확대 및 이동 좌표 상태 관리[span_1](start_span)[span_1](end_span)
 let currentZoomScale = 1.0;
 let currentTranslateX = 0;
 let currentTranslateY = 0;
 let currentZoomIndex = 0;
 
-// 핀치 줌 및 자유 이동 제스처 감지 변수
+// 핀치 줌 및 자유 이동 제스처 감지 변수[span_2](start_span)[span_2](end_span)
 let initialPinchDistance = 0;
 let initialScale = 1.0;
 let isDragging = false;
@@ -24,12 +24,12 @@ let initialTranslateX = 0;
 let initialTranslateY = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
-    initTheme();          // 야간 시간대 다크모드 자동 초기화
-    checkAuth();           // 🔒 인증 확인 후 데이터 로드 진입
-    initZoomKeyNav();      // 확대 모달 키보드 단축키 지원
-    initPinchZoom();       // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
-    initHistoryNav();      // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
-    initCountdownTimer();  // 💍 실시간 D-Day 타이머 시작
+    initTheme();          // 야간 시간대 다크모드 자동 초기화[span_3](start_span)[span_3](end_span)
+    checkAuth();           // 🔒 인증 확인 후 데이터 로드 진입[span_4](start_span)[span_4](end_span)
+    initZoomKeyNav();      // 확대 모달 키보드 단축키 지원[span_5](start_span)[span_5](end_span)
+    initPinchZoom();       // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화[span_6](start_span)[span_6](end_span)
+    initHistoryNav();      // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화[span_7](start_span)[span_7](end_span)
+    initCountdownTimer();  // 💍 실시간 D-Day 타이머 시작[span_8](start_span)[span_8](end_span)
 });
 
 // ----------------------------------
@@ -315,7 +315,9 @@ function loadFromLocalStorage() {
                     let rDate = typeof data[id] === 'object' ? data[id].reservedAt : data[id];
                     let rMemo = typeof data[id] === 'object' ? data[id].memo : "";
                     let rImgs = typeof data[id] === 'object' ? (data[id].images || []) : [];
-                    setSavedState(id, rDate, rMemo, rImgs);
+                    let rInsta = typeof data[id] === 'object' ? (data[id].instagram || "") : "";
+                    let rBlog = typeof data[id] === 'object' ? (data[id].blog || "") : "";
+                    setSavedState(id, rDate, rMemo, rImgs, rInsta, rBlog);
                 }
             });
         }
@@ -378,16 +380,21 @@ function formatKoreanDateTime(dateTimeStr) {
     return `${year}년 ${month}월 ${day}일 ${ampm} ${formattedHours}시 ${minutes}분`;
 }
 
-function setSavedState(hallId, dateVal, memoVal, imgArr) {
+function setSavedState(hallId, dateVal, memoVal, imgArr, instaVal = "", blogVal = "") {
     let images = Array.isArray(imgArr) ? imgArr : [];
     currentDbData[hallId] = { 
         reservedAt: dateVal, 
         memo: memoVal, 
-        images: images
+        images: images,
+        instagram: instaVal,
+        blog: blogVal
     };
 
     const inputDate = document.getElementById("date-" + hallId);
     const inputMemo = document.getElementById("memo-" + hallId);
+    const inputInsta = document.getElementById("insta-" + hallId);
+    const inputBlog = document.getElementById("blog-" + hallId);
+
     const textDate = document.getElementById("text-" + hallId);
     const textMemo = document.getElementById("memo-text-" + hallId);
     const box = document.getElementById("box-" + hallId);
@@ -402,6 +409,11 @@ function setSavedState(hallId, dateVal, memoVal, imgArr) {
     let cleanDateVal = sanitizeDatetimeLocal(dateVal);
     if (inputDate) inputDate.value = cleanDateVal;
     if (inputMemo) inputMemo.value = memoVal || "";
+    if (inputInsta) inputInsta.value = instaVal || "";
+    if (inputBlog) inputBlog.value = blogVal || "";
+
+    // 실시간 소셜 버튼 렌더링 갱신
+    updateSocialPreview(hallId);
 
     if (textDate) {
         textDate.innerText = cleanDateVal ? formatKoreanDateTime(cleanDateVal) : "일시 미지정";
@@ -431,6 +443,28 @@ function setSavedState(hallId, dateVal, memoVal, imgArr) {
     if (status) status.innerText = "";
 }
 
+// 📷 인스타그램 및 블로그 입력 즉시 버튼 반영 미리보기 함수
+function updateSocialPreview(hallId) {
+    const instaInput = document.getElementById("insta-" + hallId);
+    const blogInput = document.getElementById("blog-" + hallId);
+    const container = document.getElementById("social-buttons-container-" + hallId);
+
+    if (!container) return;
+
+    const instaVal = instaInput ? instaInput.value.trim() : "";
+    const blogVal = blogInput ? blogInput.value.trim() : "";
+
+    let html = "";
+    if (instaVal) {
+        html += `<a href="${instaVal}" target="_blank" rel="noopener noreferrer" class="btn-social btn-insta">📸 인스타그램</a>`;
+    }
+    if (blogVal) {
+        html += `<a href="${blogVal}" target="_blank" rel="noopener noreferrer" class="btn-social btn-blog">📝 블로그 리뷰</a>`;
+    }
+
+    container.innerHTML = html;
+}
+
 function enableEdit(hallId) {
     const viewDiv = document.getElementById("view-" + hallId);
     const editDiv = document.getElementById("edit-" + hallId);
@@ -445,7 +479,7 @@ function enableEdit(hallId) {
     if (viewDiv) viewDiv.style.display = "none";
     if (editDiv) editDiv.style.display = "flex";
     if (status) {
-        status.innerText = "일시/메모 수정 후 저장을 눌러주세요.";
+        status.innerText = "일시/메모/링크 수정 후 저장을 눌러주세요.";
         status.style.color = "var(--primary-color)";
     }
 }
@@ -471,7 +505,9 @@ function loadReservations() {
                     let rDate = data[id].reservedAt || "";
                     let rMemo = data[id].memo || "";
                     let rImgs = data[id].images || [];
-                    setSavedState(id, rDate, rMemo, rImgs);
+                    let rInsta = data[id].instagram || "";
+                    let rBlog = data[id].blog || "";
+                    setSavedState(id, rDate, rMemo, rImgs, rInsta, rBlog);
                 } else {
                     if (!currentDbData[id] || (!currentDbData[id].reservedAt && !currentDbData[id].memo)) {
                         document.getElementById("edit-" + id).style.display = "flex";
@@ -490,7 +526,7 @@ function loadReservations() {
 }
 
 function syncDataToDb(hallId, statusElement) {
-    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [] };
+    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [], instagram: "", blog: "" };
 
     saveToLocalStorage(currentDbData);
 
@@ -505,7 +541,9 @@ function syncDataToDb(hallId, statusElement) {
         hallId: hallId,
         reservedAt: hallData.reservedAt || "",
         memo: hallData.memo || "",
-        images: hallData.images || []
+        images: hallData.images || [],
+        instagram: hallData.instagram || "",
+        blog: hallData.blog || ""
     };
 
     fetch(GAS_URL, {
@@ -539,18 +577,22 @@ function syncDataToDb(hallId, statusElement) {
 function saveReservation(hallId) {
     const inputDate = document.getElementById("date-" + hallId);
     const inputMemo = document.getElementById("memo-" + hallId);
+    const inputInsta = document.getElementById("insta-" + hallId);
+    const inputBlog = document.getElementById("blog-" + hallId);
     const status = document.getElementById("status-" + hallId);
 
     const dateVal = inputDate.value;
     const memoVal = inputMemo.value;
+    const instaVal = inputInsta ? inputInsta.value.trim() : "";
+    const blogVal = inputBlog ? inputBlog.value.trim() : "";
     const existingImgs = (currentDbData[hallId] && currentDbData[hallId].images) ? currentDbData[hallId].images : [];
 
-    if (!dateVal && (!memoVal || memoVal.trim() === "")) {
-        alert("일시 또는 메모를 입력해 주세요.");
+    if (!dateVal && (!memoVal || memoVal.trim() === "") && !instaVal && !blogVal) {
+        alert("일시, 메모 또는 링크 중 하나 이상을 입력해 주세요.");
         return;
     }
 
-    setSavedState(hallId, dateVal, memoVal, existingImgs);
+    setSavedState(hallId, dateVal, memoVal, existingImgs, instaVal, blogVal);
     syncDataToDb(hallId, status);
 }
 
@@ -669,7 +711,7 @@ async function handleFileUpload(event) {
     statusMsg.style.color = "var(--primary-color)";
 
     if (!currentDbData[activeHallId]) {
-        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [] };
+        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [], instagram: "", blog: "" };
     }
     if (!currentDbData[activeHallId].images) {
         currentDbData[activeHallId].images = [];
@@ -808,7 +850,6 @@ function toggleZoomIn(event) {
     applyZoomTransform();
 }
 
-// 🤌 핀치 투 줌 및 확대 상태 손가락/마우스 자유 드래그 이동
 function initPinchZoom() {
     const wrapper = document.querySelector(".zoom-img-wrapper");
     const zoomImg = document.getElementById("zoom-img");
@@ -889,7 +930,6 @@ function getTouchDistance(touches) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-// 키보드 방향키 탐색 기능 (PC 대응)
 function initZoomKeyNav() {
     document.addEventListener("keydown", function(e) {
         const zoomModal = document.getElementById("zoom-modal");
@@ -953,7 +993,6 @@ function hideConditionsToday() {
     closeConditionsModal();
 }
 
-// 한눈에 보기 모달
 function openOverviewModal() {
     pushModalState("overview-modal");
     const container = document.getElementById("overview-list");

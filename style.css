@@ -7,11 +7,17 @@
     --badge-bg: #d4af37;
     --border-color: #f0eae1;
     
-    /* 핑크 테마 컬러 */
+    /* 핑크 테마 컬러 (메모만 작성 시) */
     --pink-bg: #fff0f3;
     --pink-border: #fcc2d7;
     --pink-text: #d6336c;
     --pink-btn: #e64980;
+
+    /* 🟢 초록 테마 컬러 (일시 지정 시 사용) */
+    --green-bg: #e8f5e9;
+    --green-border: #a5d6a7;
+    --green-text: #2e7d32;
+    --green-btn: #4caf50;
 
     /* 입력창 & 모달 배경 */
     --input-bg: #ffffff;
@@ -35,6 +41,12 @@
     --pink-border: #5c2035;
     --pink-text: #ff7597;
     --pink-btn: #e64980;
+
+    /* 🟢 다크모드 초록 테마 */
+    --green-bg: #1b3820;
+    --green-border: #2e6037;
+    --green-text: #81c784;
+    --green-btn: #388e3c;
 
     --input-bg: #2a2a2a;
     --modal-bg: #1e1e1e;
@@ -488,6 +500,7 @@ header p {
     text-align: center;
 }
 
+/* 🩷 일반 저장 상태 (메모만 작성 등) */
 .reservation-box.is-saved {
     background-color: var(--pink-bg);
     border: 1px solid var(--pink-border);
@@ -495,6 +508,28 @@ header p {
 
 .reservation-box.is-saved label {
     color: var(--pink-text);
+}
+
+/* 🟢 일시 지정 저장 상태 (우선순위 최고) */
+.reservation-box.has-date {
+    background-color: var(--green-bg) !important;
+    border: 1px solid var(--green-border) !important;
+}
+
+.reservation-box.has-date label {
+    color: var(--green-text) !important;
+}
+
+.reservation-box.has-date .saved-date-text {
+    color: var(--green-text) !important;
+}
+
+.reservation-box.has-date .saved-memo-text {
+    border-color: var(--green-border) !important;
+}
+
+.reservation-box.has-date .btn-edit {
+    background-color: var(--green-btn) !important;
 }
 
 .view-mode {
@@ -982,6 +1017,26 @@ header p {
 .overview-card.has-data {
     background-color: var(--pink-bg);
     border-color: var(--pink-border);
+}
+
+/* 🟢 초록색 일시 저장 상태 한눈에 보기 카드 */
+.overview-card.has-date {
+    background-color: var(--green-bg) !important;
+    border-color: var(--green-border) !important;
+}
+
+.overview-card.has-date .overview-title,
+.overview-card.has-date .overview-date {
+    color: var(--green-text) !important;
+}
+
+.overview-card.has-date .overview-memo {
+    border-color: var(--green-border) !important;
+}
+
+.overview-card.has-date .overview-photo-btn {
+    color: var(--green-text) !important;
+    border-color: var(--green-border) !important;
 }
 
 .overview-title {

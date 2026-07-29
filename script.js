@@ -726,7 +726,7 @@ function deletePhoto(index) {
 }
 
 // ----------------------------------
-// 🔍 고화질 Zoom 확대 뷰어 & 자유 이동(Pan)
+// 🔍 고화질 확대 뷰어 & 자유 이동(Pan)
 // ----------------------------------
 function applyZoomTransform() {
     const zoomImg = document.getElementById("zoom-img");

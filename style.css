@@ -673,6 +673,44 @@ header p {
     border: none;
 }
 
+/* ✨ 제미나이 추천 모달 스타일 */
+.recommend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recommend-item {
+    background-color: var(--sub-box-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recommend-item strong {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.recommend-item ul {
+    padding-left: 18px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.recommend-item li {
+    margin-bottom: 4px;
+}
+
+.recommend-item li:last-child {
+    margin-bottom: 0;
+}
+
 /* 📌 모달 내부 스크롤 시 상단 타이틀&X버튼 고정 */
 .modal-header {
     display: flex;

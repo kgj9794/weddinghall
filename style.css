@@ -347,34 +347,33 @@ header p {
 }
 
 /* ----------------------------------
-   💍 실시간 D-Day 카운트다운 전용 UI (무난한 배경색 및 중앙 정렬)
+   💍 실시간 D-Day 카운트다운 전용 UI
 ---------------------------------- */
 .wedding-dday-container {
     margin-top: 8px;
-    background-color: var(--sub-box-bg);
-    border: 1px solid var(--border-color);
+    background-color: var(--pink-bg);
+    border: 1px solid var(--pink-border);
     border-radius: 12px;
     padding: 8px 12px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 .dday-text {
     font-size: 0.82rem;
     font-weight: bold;
-    color: var(--text-main);
+    color: var(--pink-text);
     letter-spacing: -0.2px;
     word-break: keep-all;
-    text-align: center;
 }
 
 .btn-dday-edit {
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    color: var(--primary-color);
+    border: 1px solid var(--pink-border);
+    color: var(--pink-text);
     border-radius: 14px;
     padding: 4px 8px;
     font-size: 0.72rem;

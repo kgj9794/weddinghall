@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function() {
     initZoomKeyNav();             // 확대 모달 키보드 단축키 지원
     initPinchZoom();              // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
     initHistoryNav();             // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
-    initNotificationChecker();    // 🔔 브라우저 실시간 알림 스케줄러 등록
 });
 
 // ----------------------------------
@@ -416,7 +415,7 @@ function refreshNotifications() {
                 }
             });
             saveToLocalStorage(currentDbData);
-            alert("🔄 시트 DB와 알림 설정이 최신 상태로 동기화되었습니다!");
+            alert("🔄 구글 캘린더 알림 및 DB 설정이 최신 상태로 동기화되었습니다!");
         })
         .catch(err => {
             alert("⚠️ 동기화 실패. 인터넷 연결 상태를 확인해 주세요.");
@@ -455,6 +454,10 @@ function syncDataToDb(hallId, statusElement) {
     .then(res => res.json())
     .then(data => {
         if (data.status === "success") {
+            if (data.notification) {
+                currentDbData[hallId].notification = data.notification;
+                saveToLocalStorage(currentDbData);
+            }
             if (statusElement) {
                 statusElement.innerText = "✅ 성공적으로 저장되었습니다.";
                 statusElement.style.color = "#2e7d32";
@@ -495,39 +498,11 @@ function saveReservation(hallId) {
 }
 
 // ----------------------------------
-// 🔔 브라우저 웹 알림(Notification API) 관리
+// 🔔 구글 캘린더 알림 관리
 // ----------------------------------
-function requestNotificationPermission() {
-    const permWarning = document.getElementById("notif-perm-warning");
-
-    if (!("Notification" in window)) {
-        if (permWarning) {
-            permWarning.innerText = "⚠️ 사용 중인 브라우저는 웹 알림을 지원하지 않습니다.";
-            permWarning.style.display = "block";
-        }
-        return;
-    }
-
-    if (Notification.permission === "granted") {
-        if (permWarning) permWarning.style.display = "none";
-    } else if (Notification.permission !== "denied") {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                if (permWarning) permWarning.style.display = "none";
-            } else {
-                if (permWarning) permWarning.style.display = "block";
-            }
-        });
-    } else {
-        if (permWarning) permWarning.style.display = "block";
-    }
-}
-
 function openNotificationModal(hallId) {
     notifActiveHallId = hallId;
     pushModalState("notification-modal");
-
-    requestNotificationPermission();
 
     const notifObj = currentDbData[hallId]?.notification || {};
     const inputDatetime = document.getElementById("notif-datetime");
@@ -561,7 +536,8 @@ function saveNotification() {
     const notifObj = {
         datetime: dtVal,
         title: titleVal || `${getHallName(notifActiveHallId)} 일정 알림`,
-        body: bodyVal || "설정하신 알림 시간입니다."
+        body: bodyVal || "설정하신 알림 시간입니다.",
+        eventId: currentDbData[notifActiveHallId]?.notification?.eventId || null
     };
 
     if (!currentDbData[notifActiveHallId]) {
@@ -579,7 +555,7 @@ function saveNotification() {
         badgeNotif.style.color = "var(--green-text)";
     }
 
-    alert("🔔 알림이 성공적으로 저장되었습니다.\n상대방 기기에서도 '🔄 알림 갱신' 클릭 시 같이 수신됩니다.");
+    alert("📅 구글 캘린더 일정 및 알림이 저장되었습니다.\n공유된 캘린더를 통해 신랑/신부님 스마트폰 캘린더 알림이 100% 울립니다.");
     closeNotificationModal();
 }
 
@@ -599,7 +575,7 @@ function deleteNotification() {
         badgeNotif.style.color = "";
     }
 
-    alert("알림이 삭제되었습니다.");
+    alert("구글 캘린더 알림 일정이 삭제되었습니다.");
     closeNotificationModal();
 }
 
@@ -611,63 +587,6 @@ function getHallName(hallId) {
         worldcup: "월드컵컨벤션"
     };
     return names[hallId] || hallId;
-}
-
-// ⏰ 실시간 알림 스케줄러 (기기 독립적 이력 처리)
-function initNotificationChecker() {
-    setInterval(checkAndTriggerNotifications, 10000);
-}
-
-function getTriggeredNotifsHistory() {
-    try {
-        const history = localStorage.getItem("wedding_triggered_notifs");
-        return history ? JSON.parse(history) : {};
-    } catch(e) {
-        return {};
-    }
-}
-
-function markNotifTriggeredLocally(notifKey) {
-    const history = getTriggeredNotifsHistory();
-    history[notifKey] = true;
-    localStorage.setItem("wedding_triggered_notifs", JSON.stringify(history));
-}
-
-function checkAndTriggerNotifications() {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-
-    const now = new Date();
-    const triggeredHistory = getTriggeredNotifsHistory();
-
-    ["thesaint", "verde", "dmc", "worldcup"].forEach(hallId => {
-        const notif = currentDbData[hallId]?.notification;
-        if (notif && notif.datetime) {
-            const notifKey = `${hallId}_${notif.datetime}_${notif.title}`;
-            
-            // 이 기기에서 아직 발송된 적이 없는 알림인지 확인
-            if (!triggeredHistory[notifKey]) {
-                const targetTime = new Date(notif.datetime);
-                if (now >= targetTime) {
-                    try {
-                        new Notification(`💍 [${getHallName(hallId)}] ${notif.title}`, {
-                            body: notif.body,
-                            icon: "https://cdn-icons-png.flaticon.com/512/5307/5307639.png",
-                            tag: `wedding-${hallId}`
-                        });
-                        markNotifTriggeredLocally(notifKey);
-                    } catch (e) {
-                        console.warn("Notification trigger failed", e);
-                    }
-
-                    const badgeNotif = document.getElementById("badge-notif-" + hallId);
-                    if (badgeNotif) {
-                        badgeNotif.innerText = "완료";
-                        badgeNotif.style.color = "var(--text-sub)";
-                    }
-                }
-            }
-        }
-    });
 }
 
 // ----------------------------------

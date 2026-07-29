@@ -23,11 +23,58 @@ let initialTranslateX = 0;
 let initialTranslateY = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
-    initTheme();      // 야간 시간대 다크모드 자동 초기화
-    checkAuth();       // 🔒 인증 확인 후 데이터 로드 진입
-    initZoomKeyNav();  // 확대 모달 키보드 단축키 지원
-    initPinchZoom();   // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
+    initTheme();          // 야간 시간대 다크모드 자동 초기화
+    checkAuth();           // 🔒 인증 확인 후 데이터 로드 진입
+    initZoomKeyNav();      // 확대 모달 키보드 단축키 지원
+    initPinchZoom();       // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
+    initHistoryNav();      // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
 });
+
+// ----------------------------------
+// 📱 안드로이드 뒤로가기 버튼(History API) 통합 관리
+// ----------------------------------
+function initHistoryNav() {
+    window.addEventListener("popstate", function(event) {
+        closeTopModalUI();
+    });
+}
+
+function pushModalState(modalId) {
+    history.pushState({ openModal: modalId }, "");
+}
+
+function closeModal(modalId) {
+    if (history.state && history.state.openModal) {
+        history.back(); // history.back()이 실행되면 'popstate' 이벤트가 발생하여 closeTopModalUI()가 실행됩니다.
+    } else {
+        closeTopModalUI();
+    }
+}
+
+// 가장 위에 열려있는 모달을 찾아 닫아주는 함수
+function closeTopModalUI() {
+    const zoomModal = document.getElementById("zoom-modal");
+    const photoModal = document.getElementById("photo-modal");
+    const mapModal = document.getElementById("map-modal");
+    const conditionsModal = document.getElementById("conditions-modal");
+    const overviewModal = document.getElementById("overview-modal");
+
+    if (zoomModal && !zoomModal.classList.contains("hidden")) {
+        zoomModal.classList.add("hidden");
+        resetZoom();
+    } else if (photoModal && !photoModal.classList.contains("hidden")) {
+        photoModal.classList.add("hidden");
+        activeHallId = null;
+    } else if (mapModal && !mapModal.classList.contains("hidden")) {
+        mapModal.classList.add("hidden");
+    } else if (conditionsModal && !conditionsModal.classList.contains("hidden")) {
+        conditionsModal.classList.add("hidden");
+        if (autoCloseInterval) clearInterval(autoCloseInterval);
+    } else if (overviewModal && !overviewModal.classList.contains("hidden")) {
+        overviewModal.classList.add("hidden");
+    }
+    updateBodyScroll();
+}
 
 // ----------------------------------
 // 🔒 접속 비밀번호 서버 인증 및 화면 격리
@@ -381,9 +428,23 @@ function saveReservation(hallId) {
 }
 
 // ----------------------------------
+// 🗺️ 구글 지도 모달 관리
+// ----------------------------------
+function openMapModal() {
+    pushModalState("map-modal");
+    document.getElementById("map-modal").classList.remove("hidden");
+    updateBodyScroll();
+}
+
+function closeMapModal() {
+    closeModal("map-modal");
+}
+
+// ----------------------------------
 // 견적 사진 모달 & 업로드/삭제/확대
 // ----------------------------------
 function openPhotoModal(hallId, hallName) {
+    pushModalState("photo-modal");
     activeHallId = hallId;
     document.getElementById("photo-modal-title").innerText = `📄 ${hallName} 견적서 사진`;
     document.getElementById("photo-status-msg").innerText = "";
@@ -393,9 +454,7 @@ function openPhotoModal(hallId, hallName) {
 }
 
 function closePhotoModal() {
-    document.getElementById("photo-modal").classList.add("hidden");
-    activeHallId = null;
-    updateBodyScroll();
+    closeModal("photo-modal");
 }
 
 function renderPhotoSlider() {
@@ -546,6 +605,7 @@ function resetZoom() {
 function openZoomModal(index = 0) {
     if (!activeHallId || !currentDbData[activeHallId] || !currentDbData[activeHallId].images) return;
     
+    pushModalState("zoom-modal");
     currentZoomIndex = index;
     updateZoomView();
 
@@ -595,9 +655,7 @@ function nextZoomImage(event) {
 }
 
 function closeZoomModal() {
-    document.getElementById("zoom-modal").classList.add("hidden");
-    resetZoom();
-    updateBodyScroll();
+    closeModal("zoom-modal");
 }
 
 function toggleZoomIn(event) {
@@ -720,6 +778,7 @@ function checkInitialConditionsPopup() {
 }
 
 function openConditionsModal(isAutoClose = false) {
+    pushModalState("conditions-modal");
     const msgEl = document.getElementById("auto-close-msg");
     document.getElementById("conditions-modal").classList.remove("hidden");
     updateBodyScroll();
@@ -745,9 +804,7 @@ function openConditionsModal(isAutoClose = false) {
 }
 
 function closeConditionsModal() {
-    if (autoCloseInterval) clearInterval(autoCloseInterval);
-    document.getElementById("conditions-modal").classList.add("hidden");
-    updateBodyScroll();
+    closeModal("conditions-modal");
 }
 
 function hideConditionsToday() {
@@ -758,6 +815,7 @@ function hideConditionsToday() {
 
 // 한눈에 보기 모달
 function openOverviewModal() {
+    pushModalState("overview-modal");
     const container = document.getElementById("overview-list");
     container.innerHTML = "";
 
@@ -809,6 +867,5 @@ function openOverviewModal() {
 }
 
 function closeOverviewModal() {
-    document.getElementById("overview-modal").classList.add("hidden");
-    updateBodyScroll();
+    closeModal("overview-modal");
 }

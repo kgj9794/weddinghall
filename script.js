@@ -375,6 +375,7 @@ function compressImage(file, maxWidth = 1000, quality = 0.7) {
     });
 }
 
+// 다중 및 중복 선택 업로드 지원
 async function handleFileUpload(event) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -391,8 +392,9 @@ async function handleFileUpload(event) {
     }
 
     try {
-        for (let i = 0; i < files.length; i++) {
-            statusMsg.innerText = `⏳ 사진 업로드 중 (${i + 1}/${files.length})...`;
+        const totalFiles = files.length;
+        for (let i = 0; i < totalFiles; i++) {
+            statusMsg.innerText = `⏳ 사진 업로드 중 (${i + 1}/${totalFiles})...`;
             
             const pureBase64 = await compressImage(files[i]);
             
@@ -412,19 +414,21 @@ async function handleFileUpload(event) {
             
             if (result.status === "success" && result.url) {
                 currentDbData[activeHallId].images.push(result.url);
+                renderPhotoSlider(); // 1장씩 완료되는 대로 즉시 슬라이더 갱신
             } else {
                 throw new Error(result.message || "업로드 실패");
             }
         }
 
-        renderPhotoSlider();
         syncDataToDb(activeHallId, statusMsg);
     } catch (err) {
         console.error("Upload error:", err);
         statusMsg.innerText = "❌ 업로드 실패: " + err.message;
         statusMsg.style.color = "#d32f2f";
+    } finally {
+        // 파일 선택 인풋 초기화 -> 같은 사진을 다시 선택해도 onChange 이벤트 발생
+        event.target.value = "";
     }
-    event.target.value = "";
 }
 
 function deletePhoto(index) {

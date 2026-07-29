@@ -5,6 +5,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjR
 
 let currentDbData = {};
 let activeHallId = null;
+let notifActiveHallId = null;
 let autoCloseInterval = null;
 
 // 확대 및 이동 좌표 상태 관리
@@ -23,11 +24,12 @@ let initialTranslateX = 0;
 let initialTranslateY = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
-    initTheme();          // 야간 시간대 다크모드 자동 초기화
-    checkAuth();           // 🔒 인증 확인 후 데이터 로드 진입
-    initZoomKeyNav();      // 확대 모달 키보드 단축키 지원
-    initPinchZoom();       // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
-    initHistoryNav();      // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
+    initTheme();                 // 야간 시간대 다크모드 자동 초기화
+    checkAuth();                  // 🔒 인증 확인 후 데이터 로드 진입
+    initZoomKeyNav();             // 확대 모달 키보드 단축키 지원
+    initPinchZoom();              // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
+    initHistoryNav();             // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
+    initNotificationChecker();    // 🔔 브라우저 실시간 알림 스케줄러 등록
 });
 
 // ----------------------------------
@@ -57,6 +59,7 @@ function closeTopModalUI() {
     const photoModal = document.getElementById("photo-modal");
     const mapModal = document.getElementById("map-modal");
     const recommendModal = document.getElementById("recommend-modal");
+    const notifModal = document.getElementById("notification-modal");
     const conditionsModal = document.getElementById("conditions-modal");
     const overviewModal = document.getElementById("overview-modal");
 
@@ -70,6 +73,9 @@ function closeTopModalUI() {
         mapModal.classList.add("hidden");
     } else if (recommendModal && !recommendModal.classList.contains("hidden")) {
         recommendModal.classList.add("hidden");
+    } else if (notifModal && !notifModal.classList.contains("hidden")) {
+        notifModal.classList.add("hidden");
+        notifActiveHallId = null;
     } else if (conditionsModal && !conditionsModal.classList.contains("hidden")) {
         conditionsModal.classList.add("hidden");
         if (autoCloseInterval) clearInterval(autoCloseInterval);
@@ -211,7 +217,8 @@ function loadFromLocalStorage() {
                     let rDate = typeof data[id] === 'object' ? data[id].reservedAt : data[id];
                     let rMemo = typeof data[id] === 'object' ? data[id].memo : "";
                     let rImgs = typeof data[id] === 'object' ? (data[id].images || []) : [];
-                    setSavedState(id, rDate, rMemo, rImgs);
+                    let rNotif = typeof data[id] === 'object' ? (data[id].notification || null) : null;
+                    setSavedState(id, rDate, rMemo, rImgs, rNotif);
                 }
             });
         }
@@ -274,9 +281,14 @@ function formatKoreanDateTime(dateTimeStr) {
     return `${year}년 ${month}월 ${day}일 ${ampm} ${formattedHours}시 ${minutes}분`;
 }
 
-function setSavedState(hallId, dateVal, memoVal, imgArr) {
+function setSavedState(hallId, dateVal, memoVal, imgArr, notifObj) {
     let images = Array.isArray(imgArr) ? imgArr : [];
-    currentDbData[hallId] = { reservedAt: dateVal, memo: memoVal, images: images };
+    currentDbData[hallId] = { 
+        reservedAt: dateVal, 
+        memo: memoVal, 
+        images: images,
+        notification: notifObj || currentDbData[hallId]?.notification || null
+    };
 
     const inputDate = document.getElementById("date-" + hallId);
     const inputMemo = document.getElementById("memo-" + hallId);
@@ -284,12 +296,22 @@ function setSavedState(hallId, dateVal, memoVal, imgArr) {
     const textMemo = document.getElementById("memo-text-" + hallId);
     const box = document.getElementById("box-" + hallId);
     const badgeCount = document.getElementById("badge-count-" + hallId);
+    const badgeNotif = document.getElementById("badge-notif-" + hallId);
     
     const viewDiv = document.getElementById("view-" + hallId);
     const editDiv = document.getElementById("edit-" + hallId);
     const status = document.getElementById("status-" + hallId);
 
     if (badgeCount) badgeCount.innerText = images.length;
+    if (badgeNotif) {
+        if (currentDbData[hallId].notification && currentDbData[hallId].notification.datetime) {
+            badgeNotif.innerText = "설정됨";
+            badgeNotif.style.color = "var(--green-text)";
+        } else {
+            badgeNotif.innerText = "알림";
+            badgeNotif.style.color = "";
+        }
+    }
 
     let cleanDateVal = sanitizeDatetimeLocal(dateVal);
     if (inputDate) inputDate.value = cleanDateVal;
@@ -311,7 +333,6 @@ function setSavedState(hallId, dateVal, memoVal, imgArr) {
 
     if (box) {
         box.classList.add("is-saved");
-        // 🟢 일시 지정 유무에 따른 초록색 배경(has-date) 클래스 토글
         if (cleanDateVal) {
             box.classList.add("has-date");
         } else {
@@ -358,7 +379,8 @@ function loadReservations() {
                     let rDate = data[id].reservedAt || "";
                     let rMemo = data[id].memo || "";
                     let rImgs = data[id].images || [];
-                    setSavedState(id, rDate, rMemo, rImgs);
+                    let rNotif = data[id].notification || null;
+                    setSavedState(id, rDate, rMemo, rImgs, rNotif);
                 } else {
                     if (!currentDbData[id] || (!currentDbData[id].reservedAt && !currentDbData[id].memo)) {
                         document.getElementById("edit-" + id).style.display = "flex";
@@ -376,8 +398,37 @@ function loadReservations() {
         });
 }
 
+// 🔄 상대방이 저장한 알림/일정/사진 최신 동기화 기능
+function refreshNotifications() {
+    const loader = document.getElementById("loader");
+    if (loader) loader.classList.remove("hidden");
+
+    fetch(GAS_URL + "?action=get")
+        .then(res => res.json())
+        .then(data => {
+            ["thesaint", "verde", "dmc", "worldcup"].forEach(id => {
+                if (data[id]) {
+                    let rDate = data[id].reservedAt || "";
+                    let rMemo = data[id].memo || "";
+                    let rImgs = data[id].images || [];
+                    let rNotif = data[id].notification || null;
+                    setSavedState(id, rDate, rMemo, rImgs, rNotif);
+                }
+            });
+            saveToLocalStorage(currentDbData);
+            alert("🔄 시트 DB와 알림 설정이 최신 상태로 동기화되었습니다!");
+        })
+        .catch(err => {
+            alert("⚠️ 동기화 실패. 인터넷 연결 상태를 확인해 주세요.");
+            console.error(err);
+        })
+        .finally(() => {
+            hideLoader();
+        });
+}
+
 function syncDataToDb(hallId, statusElement) {
-    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [] };
+    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [], notification: null };
 
     saveToLocalStorage(currentDbData);
 
@@ -392,7 +443,8 @@ function syncDataToDb(hallId, statusElement) {
         hallId: hallId,
         reservedAt: hallData.reservedAt || "",
         memo: hallData.memo || "",
-        images: hallData.images || []
+        images: hallData.images || [],
+        notification: hallData.notification || null
     };
 
     fetch(GAS_URL, {
@@ -431,14 +483,191 @@ function saveReservation(hallId) {
     const dateVal = inputDate.value;
     const memoVal = inputMemo.value;
     const existingImgs = (currentDbData[hallId] && currentDbData[hallId].images) ? currentDbData[hallId].images : [];
+    const existingNotif = currentDbData[hallId]?.notification || null;
 
     if (!dateVal && (!memoVal || memoVal.trim() === "")) {
         alert("일시 또는 메모를 입력해 주세요.");
         return;
     }
 
-    setSavedState(hallId, dateVal, memoVal, existingImgs);
+    setSavedState(hallId, dateVal, memoVal, existingImgs, existingNotif);
     syncDataToDb(hallId, status);
+}
+
+// ----------------------------------
+// 🔔 브라우저 웹 알림(Notification API) 관리
+// ----------------------------------
+function requestNotificationPermission() {
+    const permWarning = document.getElementById("notif-perm-warning");
+
+    if (!("Notification" in window)) {
+        if (permWarning) {
+            permWarning.innerText = "⚠️ 사용 중인 브라우저는 웹 알림을 지원하지 않습니다.";
+            permWarning.style.display = "block";
+        }
+        return;
+    }
+
+    if (Notification.permission === "granted") {
+        if (permWarning) permWarning.style.display = "none";
+    } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                if (permWarning) permWarning.style.display = "none";
+            } else {
+                if (permWarning) permWarning.style.display = "block";
+            }
+        });
+    } else {
+        if (permWarning) permWarning.style.display = "block";
+    }
+}
+
+function openNotificationModal(hallId) {
+    notifActiveHallId = hallId;
+    pushModalState("notification-modal");
+
+    requestNotificationPermission();
+
+    const notifObj = currentDbData[hallId]?.notification || {};
+    const inputDatetime = document.getElementById("notif-datetime");
+    const inputTitle = document.getElementById("notif-title");
+    const inputBody = document.getElementById("notif-body");
+
+    if (inputDatetime) inputDatetime.value = sanitizeDatetimeLocal(notifObj.datetime || "");
+    if (inputTitle) inputTitle.value = notifObj.title || "";
+    if (inputBody) inputBody.value = notifObj.body || "";
+
+    document.getElementById("notification-modal").classList.remove("hidden");
+    updateBodyScroll();
+}
+
+function closeNotificationModal() {
+    closeModal("notification-modal");
+}
+
+function saveNotification() {
+    if (!notifActiveHallId) return;
+
+    const dtVal = document.getElementById("notif-datetime").value;
+    const titleVal = document.getElementById("notif-title").value;
+    const bodyVal = document.getElementById("notif-body").value;
+
+    if (!dtVal) {
+        alert("알림 일시를 지정해 주세요.");
+        return;
+    }
+
+    const notifObj = {
+        datetime: dtVal,
+        title: titleVal || `${getHallName(notifActiveHallId)} 일정 알림`,
+        body: bodyVal || "설정하신 알림 시간입니다."
+    };
+
+    if (!currentDbData[notifActiveHallId]) {
+        currentDbData[notifActiveHallId] = { reservedAt: "", memo: "", images: [], notification: null };
+    }
+    currentDbData[notifActiveHallId].notification = notifObj;
+
+    saveToLocalStorage(currentDbData);
+    syncDataToDb(notifActiveHallId);
+    
+    // 배지 상태 업데이트
+    const badgeNotif = document.getElementById("badge-notif-" + notifActiveHallId);
+    if (badgeNotif) {
+        badgeNotif.innerText = "설정됨";
+        badgeNotif.style.color = "var(--green-text)";
+    }
+
+    alert("🔔 알림이 성공적으로 저장되었습니다.\n상대방 기기에서도 '🔄 알림 갱신' 클릭 시 같이 수신됩니다.");
+    closeNotificationModal();
+}
+
+function deleteNotification() {
+    if (!notifActiveHallId) return;
+
+    if (currentDbData[notifActiveHallId]) {
+        currentDbData[notifActiveHallId].notification = null;
+    }
+
+    saveToLocalStorage(currentDbData);
+    syncDataToDb(notifActiveHallId);
+
+    const badgeNotif = document.getElementById("badge-notif-" + notifActiveHallId);
+    if (badgeNotif) {
+        badgeNotif.innerText = "알림";
+        badgeNotif.style.color = "";
+    }
+
+    alert("알림이 삭제되었습니다.");
+    closeNotificationModal();
+}
+
+function getHallName(hallId) {
+    const names = {
+        thesaint: "더세인트",
+        verde: "더베르G",
+        dmc: "DMC타워",
+        worldcup: "월드컵컨벤션"
+    };
+    return names[hallId] || hallId;
+}
+
+// ⏰ 실시간 알림 스케줄러 (기기 독립적 이력 처리)
+function initNotificationChecker() {
+    setInterval(checkAndTriggerNotifications, 10000);
+}
+
+function getTriggeredNotifsHistory() {
+    try {
+        const history = localStorage.getItem("wedding_triggered_notifs");
+        return history ? JSON.parse(history) : {};
+    } catch(e) {
+        return {};
+    }
+}
+
+function markNotifTriggeredLocally(notifKey) {
+    const history = getTriggeredNotifsHistory();
+    history[notifKey] = true;
+    localStorage.setItem("wedding_triggered_notifs", JSON.stringify(history));
+}
+
+function checkAndTriggerNotifications() {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+    const now = new Date();
+    const triggeredHistory = getTriggeredNotifsHistory();
+
+    ["thesaint", "verde", "dmc", "worldcup"].forEach(hallId => {
+        const notif = currentDbData[hallId]?.notification;
+        if (notif && notif.datetime) {
+            const notifKey = `${hallId}_${notif.datetime}_${notif.title}`;
+            
+            // 이 기기에서 아직 발송된 적이 없는 알림인지 확인
+            if (!triggeredHistory[notifKey]) {
+                const targetTime = new Date(notif.datetime);
+                if (now >= targetTime) {
+                    try {
+                        new Notification(`💍 [${getHallName(hallId)}] ${notif.title}`, {
+                            body: notif.body,
+                            icon: "https://cdn-icons-png.flaticon.com/512/5307/5307639.png",
+                            tag: `wedding-${hallId}`
+                        });
+                        markNotifTriggeredLocally(notifKey);
+                    } catch (e) {
+                        console.warn("Notification trigger failed", e);
+                    }
+
+                    const badgeNotif = document.getElementById("badge-notif-" + hallId);
+                    if (badgeNotif) {
+                        badgeNotif.innerText = "완료";
+                        badgeNotif.style.color = "var(--text-sub)";
+                    }
+                }
+            }
+        }
+    });
 }
 
 // ----------------------------------
@@ -556,7 +785,7 @@ async function handleFileUpload(event) {
     statusMsg.style.color = "var(--primary-color)";
 
     if (!currentDbData[activeHallId]) {
-        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [] };
+        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [], notification: null };
     }
     if (!currentDbData[activeHallId].images) {
         currentDbData[activeHallId].images = [];

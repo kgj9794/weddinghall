@@ -42,9 +42,9 @@
         <div class="main-header-sticky">
             <!-- 상단 네비게이션 바 -->
             <div class="top-nav">
-                <a href="https://www.google.com/maps/d/edit?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ&usp=sharing" target="_blank" rel="noopener noreferrer" class="top-nav-btn">
+                <button class="top-nav-btn" onclick="openMapModal()">
                     🗺️ 지도
-                </a>
+                </button>
                 <button class="top-nav-btn" onclick="openConditionsModal(false)">
                     🎯 조건
                 </button>
@@ -321,6 +321,19 @@
                 <button class="modal-close-btn" onclick="closeOverviewModal()">✕</button>
             </div>
             <div class="overview-list" id="overview-list"></div>
+        </div>
+    </div>
+
+    <!-- 모달 5: 구글 지도 모달 (iframe) -->
+    <div id="map-modal" class="modal-overlay hidden" onclick="closeMapModal()">
+        <div class="modal-content map-modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🗺️ 웨딩홀 지도 위치</h2>
+                <button class="modal-close-btn" onclick="closeMapModal()">✕</button>
+            </div>
+            <div class="map-iframe-wrapper">
+                <iframe src="https://www.google.com/maps/d/embed?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
         </div>
     </div>
 

@@ -11,6 +11,20 @@
 </head>
 <body>
 
+    <!-- 비밀번호 잠금 화면 -->
+    <div id="password-overlay" class="password-overlay">
+        <div class="password-box">
+            <div class="password-icon">🔒</div>
+            <h2>비밀번호 입력</h2>
+            <p>웨딩홀 투어 관리 페이지 접근을 위해<br>비밀번호를 입력해 주세요.</p>
+            <div class="password-input-group">
+                <input type="password" id="app-password-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') verifyPassword()">
+                <button type="button" onclick="verifyPassword()">확인</button>
+            </div>
+            <div id="password-error" class="password-error-msg"></div>
+        </div>
+    </div>
+
     <!-- 로딩 바 레이어 -->
     <div id="loader" class="loading-overlay">
         <div style="font-size: 2rem;">💍</div>
@@ -34,6 +48,9 @@
         </button>
         <button class="top-nav-btn" id="theme-toggle-btn" onclick="toggleTheme()">
             🌙 다크모드
+        </button>
+        <button class="top-nav-btn" onclick="lockApp()">
+            🔒 잠금
         </button>
     </div>
 

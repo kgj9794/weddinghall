@@ -9,23 +9,31 @@ let autoCloseInterval = null;
 let currentZoomScale = 1.0;
 
 document.addEventListener("DOMContentLoaded", function() {
-    initTheme(); // 시간 및 저장값 기반 다크모드 초기화
-    checkAuth();  // 🔒 접속 비밀번호 인증 확인
-    loadFromLocalStorage();
-    loadReservations();
+    initTheme(); // 야간 시간대 다크모드 자동 초기화
+    checkAuth();  // 🔒 인증 확인 후 데이터 로드 진입
 });
 
 // ----------------------------------
-// 🔒 접속 비밀번호 서버 인증 관리
+// 🔒 접속 비밀번호 서버 인증 및 화면 격리
 // ----------------------------------
 function checkAuth() {
     const isAuthed = localStorage.getItem("wedding_tour_authed");
     const overlay = document.getElementById("password-overlay");
+    const mainContent = document.getElementById("main-content");
     
     if (isAuthed === "true") {
         if (overlay) overlay.classList.add("hidden");
+        if (mainContent) mainContent.classList.remove("hidden");
+        
         updateBodyScroll();
+        loadFromLocalStorage();
+        
+        // 인증된 상태일 때만 실제 DB 데이터를 Fetch
+        const loader = document.getElementById("loader");
+        if (loader) loader.classList.remove("hidden");
+        loadReservations();
     } else {
+        if (mainContent) mainContent.classList.add("hidden");
         if (overlay) {
             overlay.classList.remove("hidden");
             updateBodyScroll();
@@ -40,7 +48,6 @@ function checkAuth() {
 function verifyPassword() {
     const input = document.getElementById("app-password-input");
     const errorMsg = document.getElementById("password-error");
-    const overlay = document.getElementById("password-overlay");
 
     if (!input || !input.value.trim()) {
         if (errorMsg) errorMsg.innerText = "비밀번호를 입력해 주세요.";
@@ -67,9 +74,8 @@ function verifyPassword() {
         if (data.status === "success") {
             localStorage.setItem("wedding_tour_authed", "true");
             if (errorMsg) errorMsg.innerText = "";
-            if (overlay) overlay.classList.add("hidden");
             input.value = "";
-            updateBodyScroll();
+            checkAuth(); // 인증 성공 시 메인 화면 보이기 및 DB 데이터 로드 시작
         } else {
             if (errorMsg) {
                 errorMsg.style.color = "#d32f2f";
@@ -88,15 +94,8 @@ function verifyPassword() {
     });
 }
 
-function lockApp() {
-    localStorage.removeItem("wedding_tour_authed");
-    const errorMsg = document.getElementById("password-error");
-    if (errorMsg) errorMsg.innerText = "";
-    checkAuth();
-}
-
 // ----------------------------------
-// 라이트 / 다크모드 테마 관리
+// 라이트 / 다크모드 관리 (자동 감지)
 // ----------------------------------
 function initTheme() {
     const savedTheme = localStorage.getItem("wedding_tour_theme");
@@ -111,21 +110,11 @@ function initTheme() {
 }
 
 function setTheme(theme) {
-    const btn = document.getElementById("theme-toggle-btn");
     if (theme === "dark") {
         document.documentElement.setAttribute("data-theme", "dark");
-        if (btn) btn.innerText = "☀️ 라이트모드";
     } else {
         document.documentElement.removeAttribute("data-theme");
-        if (btn) btn.innerText = "🌙 다크모드";
     }
-}
-
-function toggleTheme() {
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    const newTheme = isDark ? "light" : "dark";
-    localStorage.setItem("wedding_tour_theme", newTheme);
-    setTheme(newTheme);
 }
 
 // 팝업/잠금창 열림 시 배경 메인 화면 스크롤 제어

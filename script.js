@@ -5,6 +5,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjR
 
 let currentDbData = {};
 let activeHallId = null;
+let activeLinkHallId = null;
 let autoCloseInterval = null;
 let targetWeddingDate = null;
 
@@ -155,6 +156,7 @@ function closeTopModalUI() {
     const weddingDateModal = document.getElementById("wedding-date-modal");
     const conditionsModal = document.getElementById("conditions-modal");
     const overviewModal = document.getElementById("overview-modal");
+    const linkModal = document.getElementById("link-modal");
 
     if (zoomModal && !zoomModal.classList.contains("hidden")) {
         zoomModal.classList.add("hidden");
@@ -162,6 +164,9 @@ function closeTopModalUI() {
     } else if (photoModal && !photoModal.classList.contains("hidden")) {
         photoModal.classList.add("hidden");
         activeHallId = null;
+    } else if (linkModal && !linkModal.classList.contains("hidden")) {
+        linkModal.classList.add("hidden");
+        activeLinkHallId = null;
     } else if (mapModal && !mapModal.classList.contains("hidden")) {
         mapModal.classList.add("hidden");
     } else if (recommendModal && !recommendModal.classList.contains("hidden")) {
@@ -315,7 +320,9 @@ function loadFromLocalStorage() {
                     let rDate = typeof data[id] === 'object' ? data[id].reservedAt : data[id];
                     let rMemo = typeof data[id] === 'object' ? data[id].memo : "";
                     let rImgs = typeof data[id] === 'object' ? (data[id].images || []) : [];
-                    setSavedState(id, rDate, rMemo, rImgs);
+                    let rInsta = typeof data[id] === 'object' ? (data[id].instagram || "") : "";
+                    let rBlog = typeof data[id] === 'object' ? (data[id].blog || "") : "";
+                    setHallDataState(id, rDate, rMemo, rImgs, rInsta, rBlog);
                 }
             });
         }
@@ -378,13 +385,42 @@ function formatKoreanDateTime(dateTimeStr) {
     return `${year}년 ${month}월 ${day}일 ${ampm} ${formattedHours}시 ${minutes}분`;
 }
 
-function setSavedState(hallId, dateVal, memoVal, imgArr) {
+function setHallDataState(hallId, dateVal, memoVal, imgArr, instaVal, blogVal) {
     let images = Array.isArray(imgArr) ? imgArr : [];
+    let instagram = instaVal || "";
+    let blog = blogVal || "";
+
     currentDbData[hallId] = { 
         reservedAt: dateVal, 
         memo: memoVal, 
-        images: images
+        images: images,
+        instagram: instagram,
+        blog: blog
     };
+
+    // 인스타 / 블로그 버튼 동적 업데이트 및 표시/숨김 처리
+    const instaBtn = document.getElementById("insta-btn-" + hallId);
+    const blogBtn = document.getElementById("blog-btn-" + hallId);
+
+    if (instaBtn) {
+        if (instagram.trim() !== "") {
+            instaBtn.href = instagram;
+            instaBtn.classList.remove("hidden");
+        } else {
+            instaBtn.href = "#";
+            instaBtn.classList.add("hidden");
+        }
+    }
+
+    if (blogBtn) {
+        if (blog.trim() !== "") {
+            blogBtn.href = blog;
+            blogBtn.classList.remove("hidden");
+        } else {
+            blogBtn.href = "#";
+            blogBtn.classList.add("hidden");
+        }
+    }
 
     const inputDate = document.getElementById("date-" + hallId);
     const inputMemo = document.getElementById("memo-" + hallId);
@@ -471,7 +507,9 @@ function loadReservations() {
                     let rDate = data[id].reservedAt || "";
                     let rMemo = data[id].memo || "";
                     let rImgs = data[id].images || [];
-                    setSavedState(id, rDate, rMemo, rImgs);
+                    let rInsta = data[id].instagram || "";
+                    let rBlog = data[id].blog || "";
+                    setHallDataState(id, rDate, rMemo, rImgs, rInsta, rBlog);
                 } else {
                     if (!currentDbData[id] || (!currentDbData[id].reservedAt && !currentDbData[id].memo)) {
                         document.getElementById("edit-" + id).style.display = "flex";
@@ -490,7 +528,7 @@ function loadReservations() {
 }
 
 function syncDataToDb(hallId, statusElement) {
-    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [] };
+    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [], instagram: "", blog: "" };
 
     saveToLocalStorage(currentDbData);
 
@@ -505,7 +543,9 @@ function syncDataToDb(hallId, statusElement) {
         hallId: hallId,
         reservedAt: hallData.reservedAt || "",
         memo: hallData.memo || "",
-        images: hallData.images || []
+        images: hallData.images || [],
+        instagram: hallData.instagram || "",
+        blog: hallData.blog || ""
     };
 
     fetch(GAS_URL, {
@@ -543,15 +583,54 @@ function saveReservation(hallId) {
 
     const dateVal = inputDate.value;
     const memoVal = inputMemo.value;
-    const existingImgs = (currentDbData[hallId] && currentDbData[hallId].images) ? currentDbData[hallId].images : [];
+    const existing = currentDbData[hallId] || { images: [], instagram: "", blog: "" };
 
     if (!dateVal && (!memoVal || memoVal.trim() === "")) {
         alert("일시 또는 메모를 입력해 주세요.");
         return;
     }
 
-    setSavedState(hallId, dateVal, memoVal, existingImgs);
+    setHallDataState(hallId, dateVal, memoVal, existing.images, existing.instagram, existing.blog);
     syncDataToDb(hallId, status);
+}
+
+// ----------------------------------
+// 🔗 인스타그램 & 블로그 링크 관리 모달
+// ----------------------------------
+function openLinkModal(hallId, hallName) {
+    pushModalState("link-modal");
+    activeLinkHallId = hallId;
+    document.getElementById("link-modal-title").innerText = `🔗 ${hallName} 링크 관리`;
+    document.getElementById("link-status-msg").innerText = "";
+
+    const hallData = currentDbData[hallId] || { instagram: "", blog: "" };
+    document.getElementById("input-insta-url").value = hallData.instagram || "";
+    document.getElementById("input-blog-url").value = hallData.blog || "";
+
+    document.getElementById("link-modal").classList.remove("hidden");
+    updateBodyScroll();
+}
+
+function closeLinkModal() {
+    closeModal("link-modal");
+}
+
+function saveHallLinks() {
+    if (!activeLinkHallId) return;
+
+    const instaVal = document.getElementById("input-insta-url").value.trim();
+    const blogVal = document.getElementById("input-blog-url").value.trim();
+    const statusMsg = document.getElementById("link-status-msg");
+
+    const existing = currentDbData[activeLinkHallId] || { reservedAt: "", memo: "", images: [] };
+
+    // 즉시 상태 반영 및 버튼 표시 갱신
+    setHallDataState(activeLinkHallId, existing.reservedAt, existing.memo, existing.images, instaVal, blogVal);
+    syncDataToDb(activeLinkHallId, statusMsg);
+
+    setTimeout(() => {
+        closeLinkModal();
+    }, 600);
 }
 
 // ----------------------------------
@@ -669,7 +748,7 @@ async function handleFileUpload(event) {
     statusMsg.style.color = "var(--primary-color)";
 
     if (!currentDbData[activeHallId]) {
-        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [] };
+        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [], instagram: "", blog: "" };
     }
     if (!currentDbData[activeHallId].images) {
         currentDbData[activeHallId].images = [];

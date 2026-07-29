@@ -395,15 +395,15 @@
         </div>
     </div>
 
-    <!-- 🔔 모달 7: 웹 알림 설정 모달 -->
+    <!-- 🔔 모달 7: 구글 캘린더 알림 설정 모달 -->
     <div id="notification-modal" class="modal-overlay hidden" onclick="closeNotificationModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 id="notif-modal-title">🔔 웹 알림 설정</h2>
+                <h2 id="notif-modal-title">🔔 구글 캘린더 알림 설정</h2>
                 <button class="modal-close-btn" onclick="closeNotificationModal()">✕</button>
             </div>
             <div class="notification-form">
-                <p style="font-size:0.83rem; color:var(--text-sub); line-height:1.4;">지정한 일시에 브라우저 웹 알림(Pop-up)을 울립니다.</p>
+                <p style="font-size:0.83rem; color:var(--text-sub); line-height:1.45;">💡 구글 캘린더와 연동되어 신랑/신부님의 스마트폰 캘린더 푸시 알림으로 100% 확실하게 발송됩니다.</p>
 
                 <div class="notif-input-group">
                     <label>📅 알림 일시</label>
@@ -418,10 +418,6 @@
                 <div class="notif-input-group">
                     <label>📝 알림 내용</label>
                     <textarea id="notif-body" placeholder="예: 오전 10시 전화 예약 오픈! 선착순 접수 시작"></textarea>
-                </div>
-
-                <div id="notif-perm-warning" class="notif-perm-warning" style="display: none;">
-                    ⚠️ 브라우저 알림 권한이 거부되어 있습니다. 브라우저 설정에서 알림을 허용해 주세요.
                 </div>
             </div>
             <div class="modal-footer" style="gap: 8px;">

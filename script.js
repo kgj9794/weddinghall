@@ -5,8 +5,8 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjR
 
 let currentDbData = {};
 let activeHallId = null;
-let notifActiveHallId = null;
 let autoCloseInterval = null;
+let targetWeddingDate = null;
 
 // 확대 및 이동 좌표 상태 관리
 let currentZoomScale = 1.0;
@@ -24,12 +24,107 @@ let initialTranslateX = 0;
 let initialTranslateY = 0;
 
 document.addEventListener("DOMContentLoaded", function() {
-    initTheme();                 // 야간 시간대 다크모드 자동 초기화
-    checkAuth();                  // 🔒 인증 확인 후 데이터 로드 진입
-    initZoomKeyNav();             // 확대 모달 키보드 단축키 지원
-    initPinchZoom();              // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
-    initHistoryNav();             // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
+    initTheme();          // 야간 시간대 다크모드 자동 초기화
+    checkAuth();           // 🔒 인증 확인 후 데이터 로드 진입
+    initZoomKeyNav();      // 확대 모달 키보드 단축키 지원
+    initPinchZoom();       // 🤌 핀치 투 줌 및 자유 드래그 이동 기능 초기화
+    initHistoryNav();      // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
+    initCountdownTimer();  // 💍 실시간 D-Day 타이머 시작
 });
+
+// ----------------------------------
+// 💍 실시간 D-Day 카운트다운 타이머
+// ----------------------------------
+function initCountdownTimer() {
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+
+function updateCountdown() {
+    const displayEl = document.getElementById("dday-text");
+    if (!displayEl) return;
+
+    if (!targetWeddingDate) {
+        displayEl.innerText = "💍 결혼 예정일을 설정해 주세요";
+        return;
+    }
+
+    const targetTime = new Date(targetWeddingDate).getTime();
+    if (isNaN(targetTime)) {
+        displayEl.innerText = "💍 결혼 예정일을 설정해 주세요";
+        return;
+    }
+
+    const now = new Date().getTime();
+    const diff = targetTime - now;
+
+    if (diff <= 0) {
+        displayEl.innerText = "🎉 축하합니다! D-Day 오늘이 결혼식입니다! 💍";
+        return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    const padH = String(hours).padStart(2, '0');
+    const padM = String(minutes).padStart(2, '0');
+    const padS = String(seconds).padStart(2, '0');
+
+    displayEl.innerText = `💍 D-${days} (${days}일 ${padH}시간 ${padM}분 ${padS}초 남음)`;
+}
+
+function openWeddingDateModal() {
+    pushModalState("wedding-date-modal");
+    const input = document.getElementById("wedding-date-input");
+    if (input && targetWeddingDate) {
+        input.value = sanitizeDatetimeLocal(targetWeddingDate);
+    }
+    document.getElementById("wedding-date-modal").classList.remove("hidden");
+    updateBodyScroll();
+}
+
+function closeWeddingDateModal() {
+    closeModal("wedding-date-modal");
+}
+
+function saveWeddingDate() {
+    const input = document.getElementById("wedding-date-input");
+    if (!input || !input.value) {
+        alert("결혼 예정일을 선택해 주세요.");
+        return;
+    }
+
+    const dateVal = input.value;
+    targetWeddingDate = dateVal;
+    localStorage.setItem("wedding_date_cache", dateVal);
+
+    updateCountdown();
+
+    const payload = {
+        authToken: AUTH_TOKEN,
+        action: "saveWeddingDate",
+        weddingDate: dateVal
+    };
+
+    fetch(GAS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("💍 결혼 예정일이 정상적으로 DB에 저장되었습니다.");
+        }
+    })
+    .catch(err => {
+        console.error("D-Day 저장 실패:", err);
+    });
+
+    closeWeddingDateModal();
+}
 
 // ----------------------------------
 // 📱 안드로이드 뒤로가기 버튼(History API) 통합 관리
@@ -52,13 +147,12 @@ function closeModal(modalId) {
     }
 }
 
-// 가장 위에 열려있는 모달을 찾아 닫아주는 함수
 function closeTopModalUI() {
     const zoomModal = document.getElementById("zoom-modal");
     const photoModal = document.getElementById("photo-modal");
     const mapModal = document.getElementById("map-modal");
     const recommendModal = document.getElementById("recommend-modal");
-    const notifModal = document.getElementById("notification-modal");
+    const weddingDateModal = document.getElementById("wedding-date-modal");
     const conditionsModal = document.getElementById("conditions-modal");
     const overviewModal = document.getElementById("overview-modal");
 
@@ -72,9 +166,8 @@ function closeTopModalUI() {
         mapModal.classList.add("hidden");
     } else if (recommendModal && !recommendModal.classList.contains("hidden")) {
         recommendModal.classList.add("hidden");
-    } else if (notifModal && !notifModal.classList.contains("hidden")) {
-        notifModal.classList.add("hidden");
-        notifActiveHallId = null;
+    } else if (weddingDateModal && !weddingDateModal.classList.contains("hidden")) {
+        weddingDateModal.classList.add("hidden");
     } else if (conditionsModal && !conditionsModal.classList.contains("hidden")) {
         conditionsModal.classList.add("hidden");
         if (autoCloseInterval) clearInterval(autoCloseInterval);
@@ -208,6 +301,12 @@ function saveToLocalStorage(data) {
 
 function loadFromLocalStorage() {
     try {
+        const cachedDate = localStorage.getItem("wedding_date_cache");
+        if (cachedDate) {
+            targetWeddingDate = cachedDate;
+            updateCountdown();
+        }
+
         const cached = localStorage.getItem("wedding_tour_cache");
         if (cached) {
             const data = JSON.parse(cached);
@@ -216,8 +315,7 @@ function loadFromLocalStorage() {
                     let rDate = typeof data[id] === 'object' ? data[id].reservedAt : data[id];
                     let rMemo = typeof data[id] === 'object' ? data[id].memo : "";
                     let rImgs = typeof data[id] === 'object' ? (data[id].images || []) : [];
-                    let rNotif = typeof data[id] === 'object' ? (data[id].notification || null) : null;
-                    setSavedState(id, rDate, rMemo, rImgs, rNotif);
+                    setSavedState(id, rDate, rMemo, rImgs);
                 }
             });
         }
@@ -280,13 +378,12 @@ function formatKoreanDateTime(dateTimeStr) {
     return `${year}년 ${month}월 ${day}일 ${ampm} ${formattedHours}시 ${minutes}분`;
 }
 
-function setSavedState(hallId, dateVal, memoVal, imgArr, notifObj) {
+function setSavedState(hallId, dateVal, memoVal, imgArr) {
     let images = Array.isArray(imgArr) ? imgArr : [];
     currentDbData[hallId] = { 
         reservedAt: dateVal, 
         memo: memoVal, 
-        images: images,
-        notification: notifObj || currentDbData[hallId]?.notification || null
+        images: images
     };
 
     const inputDate = document.getElementById("date-" + hallId);
@@ -295,22 +392,12 @@ function setSavedState(hallId, dateVal, memoVal, imgArr, notifObj) {
     const textMemo = document.getElementById("memo-text-" + hallId);
     const box = document.getElementById("box-" + hallId);
     const badgeCount = document.getElementById("badge-count-" + hallId);
-    const badgeNotif = document.getElementById("badge-notif-" + hallId);
     
     const viewDiv = document.getElementById("view-" + hallId);
     const editDiv = document.getElementById("edit-" + hallId);
     const status = document.getElementById("status-" + hallId);
 
     if (badgeCount) badgeCount.innerText = images.length;
-    if (badgeNotif) {
-        if (currentDbData[hallId].notification && currentDbData[hallId].notification.datetime) {
-            badgeNotif.innerText = "설정됨";
-            badgeNotif.style.color = "var(--green-text)";
-        } else {
-            badgeNotif.innerText = "알림";
-            badgeNotif.style.color = "";
-        }
-    }
 
     let cleanDateVal = sanitizeDatetimeLocal(dateVal);
     if (inputDate) inputDate.value = cleanDateVal;
@@ -373,13 +460,18 @@ function loadReservations() {
             return res.json();
         })
         .then(data => {
+            if (data.weddingDate) {
+                targetWeddingDate = data.weddingDate;
+                localStorage.setItem("wedding_date_cache", data.weddingDate);
+                updateCountdown();
+            }
+
             ["thesaint", "verde", "dmc", "worldcup"].forEach(id => {
                 if (data[id]) {
                     let rDate = data[id].reservedAt || "";
                     let rMemo = data[id].memo || "";
                     let rImgs = data[id].images || [];
-                    let rNotif = data[id].notification || null;
-                    setSavedState(id, rDate, rMemo, rImgs, rNotif);
+                    setSavedState(id, rDate, rMemo, rImgs);
                 } else {
                     if (!currentDbData[id] || (!currentDbData[id].reservedAt && !currentDbData[id].memo)) {
                         document.getElementById("edit-" + id).style.display = "flex";
@@ -397,37 +489,8 @@ function loadReservations() {
         });
 }
 
-// 🔄 상대방이 저장한 알림/일정/사진 최신 동기화 기능
-function refreshNotifications() {
-    const loader = document.getElementById("loader");
-    if (loader) loader.classList.remove("hidden");
-
-    fetch(GAS_URL + "?action=get")
-        .then(res => res.json())
-        .then(data => {
-            ["thesaint", "verde", "dmc", "worldcup"].forEach(id => {
-                if (data[id]) {
-                    let rDate = data[id].reservedAt || "";
-                    let rMemo = data[id].memo || "";
-                    let rImgs = data[id].images || [];
-                    let rNotif = data[id].notification || null;
-                    setSavedState(id, rDate, rMemo, rImgs, rNotif);
-                }
-            });
-            saveToLocalStorage(currentDbData);
-            alert("🔄 구글 캘린더 알림 및 DB 설정이 최신 상태로 동기화되었습니다!");
-        })
-        .catch(err => {
-            alert("⚠️ 동기화 실패. 인터넷 연결 상태를 확인해 주세요.");
-            console.error(err);
-        })
-        .finally(() => {
-            hideLoader();
-        });
-}
-
 function syncDataToDb(hallId, statusElement) {
-    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [], notification: null };
+    const hallData = currentDbData[hallId] || { reservedAt: "", memo: "", images: [] };
 
     saveToLocalStorage(currentDbData);
 
@@ -442,8 +505,7 @@ function syncDataToDb(hallId, statusElement) {
         hallId: hallId,
         reservedAt: hallData.reservedAt || "",
         memo: hallData.memo || "",
-        images: hallData.images || [],
-        notification: hallData.notification || null
+        images: hallData.images || []
     };
 
     fetch(GAS_URL, {
@@ -454,10 +516,6 @@ function syncDataToDb(hallId, statusElement) {
     .then(res => res.json())
     .then(data => {
         if (data.status === "success") {
-            if (data.notification) {
-                currentDbData[hallId].notification = data.notification;
-                saveToLocalStorage(currentDbData);
-            }
             if (statusElement) {
                 statusElement.innerText = "✅ 성공적으로 저장되었습니다.";
                 statusElement.style.color = "#2e7d32";
@@ -486,107 +544,14 @@ function saveReservation(hallId) {
     const dateVal = inputDate.value;
     const memoVal = inputMemo.value;
     const existingImgs = (currentDbData[hallId] && currentDbData[hallId].images) ? currentDbData[hallId].images : [];
-    const existingNotif = currentDbData[hallId]?.notification || null;
 
     if (!dateVal && (!memoVal || memoVal.trim() === "")) {
         alert("일시 또는 메모를 입력해 주세요.");
         return;
     }
 
-    setSavedState(hallId, dateVal, memoVal, existingImgs, existingNotif);
+    setSavedState(hallId, dateVal, memoVal, existingImgs);
     syncDataToDb(hallId, status);
-}
-
-// ----------------------------------
-// 🔔 구글 캘린더 알림 관리
-// ----------------------------------
-function openNotificationModal(hallId) {
-    notifActiveHallId = hallId;
-    pushModalState("notification-modal");
-
-    const notifObj = currentDbData[hallId]?.notification || {};
-    const inputDatetime = document.getElementById("notif-datetime");
-    const inputTitle = document.getElementById("notif-title");
-    const inputBody = document.getElementById("notif-body");
-
-    if (inputDatetime) inputDatetime.value = sanitizeDatetimeLocal(notifObj.datetime || "");
-    if (inputTitle) inputTitle.value = notifObj.title || "";
-    if (inputBody) inputBody.value = notifObj.body || "";
-
-    document.getElementById("notification-modal").classList.remove("hidden");
-    updateBodyScroll();
-}
-
-function closeNotificationModal() {
-    closeModal("notification-modal");
-}
-
-function saveNotification() {
-    if (!notifActiveHallId) return;
-
-    const dtVal = document.getElementById("notif-datetime").value;
-    const titleVal = document.getElementById("notif-title").value;
-    const bodyVal = document.getElementById("notif-body").value;
-
-    if (!dtVal) {
-        alert("알림 일시를 지정해 주세요.");
-        return;
-    }
-
-    const notifObj = {
-        datetime: dtVal,
-        title: titleVal || `${getHallName(notifActiveHallId)} 일정 알림`,
-        body: bodyVal || "설정하신 알림 시간입니다.",
-        eventId: currentDbData[notifActiveHallId]?.notification?.eventId || null
-    };
-
-    if (!currentDbData[notifActiveHallId]) {
-        currentDbData[notifActiveHallId] = { reservedAt: "", memo: "", images: [], notification: null };
-    }
-    currentDbData[notifActiveHallId].notification = notifObj;
-
-    saveToLocalStorage(currentDbData);
-    syncDataToDb(notifActiveHallId);
-    
-    // 배지 상태 업데이트
-    const badgeNotif = document.getElementById("badge-notif-" + notifActiveHallId);
-    if (badgeNotif) {
-        badgeNotif.innerText = "설정됨";
-        badgeNotif.style.color = "var(--green-text)";
-    }
-
-    alert("📅 구글 캘린더 일정 및 알림이 저장되었습니다.\n공유된 캘린더를 통해 신랑/신부님 스마트폰 캘린더 알림이 100% 울립니다.");
-    closeNotificationModal();
-}
-
-function deleteNotification() {
-    if (!notifActiveHallId) return;
-
-    if (currentDbData[notifActiveHallId]) {
-        currentDbData[notifActiveHallId].notification = null;
-    }
-
-    saveToLocalStorage(currentDbData);
-    syncDataToDb(notifActiveHallId);
-
-    const badgeNotif = document.getElementById("badge-notif-" + notifActiveHallId);
-    if (badgeNotif) {
-        badgeNotif.innerText = "알림";
-        badgeNotif.style.color = "";
-    }
-
-    alert("구글 캘린더 알림 일정이 삭제되었습니다.");
-    closeNotificationModal();
-}
-
-function getHallName(hallId) {
-    const names = {
-        thesaint: "더세인트",
-        verde: "더베르G",
-        dmc: "DMC타워",
-        worldcup: "월드컵컨벤션"
-    };
-    return names[hallId] || hallId;
 }
 
 // ----------------------------------
@@ -704,7 +669,7 @@ async function handleFileUpload(event) {
     statusMsg.style.color = "var(--primary-color)";
 
     if (!currentDbData[activeHallId]) {
-        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [], notification: null };
+        currentDbData[activeHallId] = { reservedAt: "", memo: "", images: [] };
     }
     if (!currentDbData[activeHallId].images) {
         currentDbData[activeHallId].images = [];

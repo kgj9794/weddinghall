@@ -7,12 +7,6 @@
     --badge-bg: #d4af37;
     --border-color: #f0eae1;
     
-    /* 핑크 테마 컬러 (메모만 작성 시) */
-    --pink-bg: #fff0f3;
-    --pink-border: #fcc2d7;
-    --pink-text: #d6336c;
-    --pink-btn: #e64980;
-
     /* 🟢 초록 테마 컬러 (일시 지정 시 사용) */
     --green-bg: #e8f5e9;
     --green-border: #a5d6a7;
@@ -36,11 +30,6 @@
     --text-sub: #aaaaaa;
     --badge-bg: #b8860b;
     --border-color: #333333;
-
-    --pink-bg: #2a151d;
-    --pink-border: #5c2035;
-    --pink-text: #ff7597;
-    --pink-btn: #e64980;
 
     /* 🟢 다크모드 초록 테마 */
     --green-bg: #1b3820;
@@ -347,33 +336,34 @@ header p {
 }
 
 /* ----------------------------------
-   💍 실시간 D-Day 카운트다운 전용 UI
+   💍 실시간 D-Day 카운트다운 전용 UI (무난한 배경색 적용)
 ---------------------------------- */
 .wedding-dday-container {
     margin-top: 8px;
-    background-color: var(--pink-bg);
-    border: 1px solid var(--pink-border);
+    background-color: var(--sub-box-bg);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 8px 12px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: center;
+    gap: 10px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 .dday-text {
     font-size: 0.82rem;
     font-weight: bold;
-    color: var(--pink-text);
+    color: var(--text-main);
     letter-spacing: -0.2px;
     word-break: keep-all;
+    text-align: center;
 }
 
 .btn-dday-edit {
     background: var(--card-bg);
-    border: 1px solid var(--pink-border);
-    color: var(--pink-text);
+    border: 1px solid var(--border-color);
+    color: var(--primary-color);
     border-radius: 14px;
     padding: 4px 8px;
     font-size: 0.72rem;

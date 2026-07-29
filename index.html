@@ -42,6 +42,9 @@
         <div class="main-header-sticky">
             <!-- 상단 네비게이션 바 -->
             <div class="top-nav">
+                <button class="top-nav-btn" onclick="refreshNotifications()">
+                    🔄 알림 갱신
+                </button>
                 <button class="top-nav-btn" onclick="openRecommendModal()">
                     ✨ 제미나이 추천
                 </button>
@@ -73,9 +76,14 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>더세인트 (The Saint)</h2>
-                        <button class="btn-info-icon" onclick="openPhotoModal('thesaint', '더세인트')">
-                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-thesaint">0</span>
-                        </button>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-info-icon" onclick="openNotificationModal('thesaint')">
+                                🔔 <span id="badge-notif-thesaint">알림</span>
+                            </button>
+                            <button class="btn-info-icon" onclick="openPhotoModal('thesaint', '더세인트')">
+                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-thesaint">0</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 경인로 662 디큐브시티 6층 / 41층</span></div>
@@ -116,9 +124,14 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>더베르G (The Verde G)</h2>
-                        <button class="btn-info-icon" onclick="openPhotoModal('verde', '더베르G')">
-                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-verde">0</span>
-                        </button>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-info-icon" onclick="openNotificationModal('verde')">
+                                🔔 <span id="badge-notif-verde">알림</span>
+                            </button>
+                            <button class="btn-info-icon" onclick="openPhotoModal('verde', '더베르G')">
+                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-verde">0</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 디지털로26길 38 지타워 2층</span></div>
@@ -159,9 +172,14 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>DMC타워 웨딩홀</h2>
-                        <button class="btn-info-icon" onclick="openPhotoModal('dmc', 'DMC타워')">
-                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-dmc">0</span>
-                        </button>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-info-icon" onclick="openNotificationModal('dmc')">
+                                🔔 <span id="badge-notif-dmc">알림</span>
+                            </button>
+                            <button class="btn-info-icon" onclick="openPhotoModal('dmc', 'DMC타워')">
+                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-dmc">0</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 성암로 189 중소기업DMC타워</span></div>
@@ -202,9 +220,14 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>월드컵컨벤션</h2>
-                        <button class="btn-info-icon" onclick="openPhotoModal('worldcup', '월드컵컨벤션')">
-                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-worldcup">0</span>
-                        </button>
+                        <div style="display:flex; gap:4px;">
+                            <button class="btn-info-icon" onclick="openNotificationModal('worldcup')">
+                                🔔 <span id="badge-notif-worldcup">알림</span>
+                            </button>
+                            <button class="btn-info-icon" onclick="openPhotoModal('worldcup', '월드컵컨벤션')">
+                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-worldcup">0</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 월드컵로 240 서울월드컵경기장 서측 2층</span></div>
@@ -368,6 +391,42 @@
                         <li>오픈하자마자 첫 주말에 투어를 돌고 당일 계약을 진행합니다.</li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔔 모달 7: 웹 알림 설정 모달 -->
+    <div id="notification-modal" class="modal-overlay hidden" onclick="closeNotificationModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="notif-modal-title">🔔 웹 알림 설정</h2>
+                <button class="modal-close-btn" onclick="closeNotificationModal()">✕</button>
+            </div>
+            <div class="notification-form">
+                <p style="font-size:0.83rem; color:var(--text-sub); line-height:1.4;">지정한 일시에 브라우저 웹 알림(Pop-up)을 울립니다.</p>
+
+                <div class="notif-input-group">
+                    <label>📅 알림 일시</label>
+                    <input type="datetime-local" id="notif-datetime">
+                </div>
+
+                <div class="notif-input-group">
+                    <label>📌 알림 제목</label>
+                    <input type="text" id="notif-title" placeholder="예: 더세인트 예약 오픈 당일 홀팅 시도">
+                </div>
+
+                <div class="notif-input-group">
+                    <label>📝 알림 내용</label>
+                    <textarea id="notif-body" placeholder="예: 오전 10시 전화 예약 오픈! 선착순 접수 시작"></textarea>
+                </div>
+
+                <div id="notif-perm-warning" class="notif-perm-warning" style="display: none;">
+                    ⚠️ 브라우저 알림 권한이 거부되어 있습니다. 브라우저 설정에서 알림을 허용해 주세요.
+                </div>
+            </div>
+            <div class="modal-footer" style="gap: 8px;">
+                <button class="btn-delete-notif" onclick="deleteNotification()">🗑️ 삭제</button>
+                <button class="btn-modal-confirm" style="flex:1;" onclick="saveNotification()">🔔 알림 저장</button>
             </div>
         </div>
     </div>

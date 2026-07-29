@@ -26,7 +26,7 @@
     </div>
 
     <!-- 로딩 바 레이어 -->
-    <div id="loader" class="loading-overlay">
+    <div id="loader" class="loading-overlay hidden">
         <div style="font-size: 2rem;">💍</div>
         <div class="loading-title">DB를 불러오는 중...</div>
         <div class="loading-sub">데이터 연동 상태를 확인하고 있습니다</div>
@@ -35,198 +35,197 @@
         </div>
     </div>
 
-    <!-- 상단 네비게이션 바 (가로 슬라이더 적용) -->
-    <div class="top-nav">
-        <a href="https://www.google.com/maps/d/edit?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ&usp=sharing" target="_blank" rel="noopener noreferrer" class="top-nav-btn">
-            🗺️ 지도
-        </a>
-        <button class="top-nav-btn" onclick="openConditionsModal(false)">
-            🎯 조건
-        </button>
-        <button class="top-nav-btn" onclick="openOverviewModal()">
-            📋 한눈에 보기
-        </button>
-        <button class="top-nav-btn" id="theme-toggle-btn" onclick="toggleTheme()">
-            🌙 다크모드
-        </button>
-        <button class="top-nav-btn" onclick="lockApp()">
-            🔒 잠금
-        </button>
-    </div>
+    <!-- 인증 전까지 완전히 숨겨지는 메인 콘텐츠 영역 -->
+    <div id="main-content" class="main-content hidden">
 
-    <header>
-        <h1>💍 웨딩홀 투어 리스트</h1>
-        <p>투어 일정 및 견적 서류 DB 관리</p>
-    </header>
-
-    <div class="container">
-
-        <!-- 1순위: 더세인트 -->
-        <div class="card">
-            <span class="badge">1순위</span>
-            <div class="thumbnail-wrapper">
-                <img src="https://mblogthumb-phinf.pstatic.net/MjAyNDAzMTdfMjQ3/MDAxNzEwNjgzNDQ2ODc5.swYPLJ6a2nV0sFthQfWKLliAwWVlnjpIz1Sk6UF09pYg.VwhFBSQnPbTCkqk8mFKnDdzBDvUO0gxUsqAcISz87Jwg.JPEG/IMG_9293.JPEG?type=w800" referrerpolicy="no-referrer" alt="더세인트">
-            </div>
-            <div class="info">
-                <div class="card-header-row">
-                    <h2>더세인트 (The Saint)</h2>
-                    <button class="btn-info-icon" onclick="openPhotoModal('thesaint', '더세인트')">
-                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-thesaint">0</span>
-                    </button>
-                </div>
-                <div class="detail-list">
-                    <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 경인로 662 디큐브시티 6층 / 41층</span></div>
-                    <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>1·2호선 신도림역 지하 직접 연결 / 현대백화점 주차장</span></div>
-                    <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>41층 파노라마홀 (통창 고층 전경 및 화사한 채광)</span></div>
-                </div>
-                <a href="http://thesaint.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
-                
-                <div class="reservation-box" id="box-thesaint">
-                    <label>📅 투어 일정 & 메모</label>
-                    
-                    <div class="view-mode" id="view-thesaint" style="display: none;">
-                        <div class="view-header">
-                            <span class="saved-date-text" id="text-thesaint"></span>
-                        </div>
-                        <div class="saved-memo-text" id="memo-text-thesaint" style="display: none;"></div>
-                        <button class="btn-edit" onclick="enableEdit('thesaint')">수정</button>
-                    </div>
-
-                    <div class="edit-mode" id="edit-thesaint">
-                        <input type="datetime-local" id="date-thesaint">
-                        <textarea id="memo-thesaint" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
-                        <button class="btn-save" onclick="saveReservation('thesaint')">저장</button>
-                    </div>
-
-                    <div class="status-msg" id="status-thesaint"></div>
-                </div>
-            </div>
+        <!-- 상단 네비게이션 바 -->
+        <div class="top-nav">
+            <a href="https://www.google.com/maps/d/edit?mid=1F0KTCwKt_FUKTHqYoahoEMsKUFtmsXQ&usp=sharing" target="_blank" rel="noopener noreferrer" class="top-nav-btn">
+                🗺️ 지도
+            </a>
+            <button class="top-nav-btn" onclick="openConditionsModal(false)">
+                🎯 조건
+            </button>
+            <button class="top-nav-btn" onclick="openOverviewModal()">
+                📋 한눈에 보기
+            </button>
         </div>
 
-        <!-- 2순위: 더베르G -->
-        <div class="card">
-            <span class="badge">2순위</span>
-            <div class="thumbnail-wrapper">
-                <img src="https://cdn.imweb.me/upload/S20250509166c5ad4f8d79/6a7651e34a28d.png" referrerpolicy="no-referrer" alt="더베르G">
-            </div>
-            <div class="info">
-                <div class="card-header-row">
-                    <h2>더베르G (The Verde G)</h2>
-                    <button class="btn-info-icon" onclick="openPhotoModal('verde', '더베르G')">
-                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-verde">0</span>
-                    </button>
-                </div>
-                <div class="detail-list">
-                    <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 디지털로26길 38 지타워 2층</span></div>
-                    <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>2호선 구로디지털단지역 / 약 1,400대 이상 대형 주차장</span></div>
-                    <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>단독 가든홀 (유리 천창 채광 + 백색 생화 연출)</span></div>
-                </div>
-                <a href="http://www.theverde-g.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+        <header>
+            <h1>💍 웨딩홀 투어 리스트</h1>
+            <p>투어 일정 및 견적 서류 DB 관리</p>
+        </header>
 
-                <div class="reservation-box" id="box-verde">
-                    <label>📅 투어 일정 & 메모</label>
+        <div class="container">
+
+            <!-- 1순위: 더세인트 -->
+            <div class="card">
+                <span class="badge">1순위</span>
+                <div class="thumbnail-wrapper">
+                    <img src="https://mblogthumb-phinf.pstatic.net/MjAyNDAzMTdfMjQ3/MDAxNzEwNjgzNDQ2ODc5.swYPLJ6a2nV0sFthQfWKLliAwWVlnjpIz1Sk6UF09pYg.VwhFBSQnPbTCkqk8mFKnDdzBDvUO0gxUsqAcISz87Jwg.JPEG/IMG_9293.JPEG?type=w800" referrerpolicy="no-referrer" alt="더세인트">
+                </div>
+                <div class="info">
+                    <div class="card-header-row">
+                        <h2>더세인트 (The Saint)</h2>
+                        <button class="btn-info-icon" onclick="openPhotoModal('thesaint', '더세인트')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-thesaint">0</span>
+                        </button>
+                    </div>
+                    <div class="detail-list">
+                        <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 경인로 662 디큐브시티 6층 / 41층</span></div>
+                        <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>1·2호선 신도림역 지하 직접 연결 / 현대백화점 주차장</span></div>
+                        <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>41층 파노라마홀 (통창 고층 전경 및 화사한 채광)</span></div>
+                    </div>
+                    <a href="http://thesaint.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
                     
-                    <div class="view-mode" id="view-verde" style="display: none;">
-                        <div class="view-header">
-                            <span class="saved-date-text" id="text-verde"></span>
+                    <div class="reservation-box" id="box-thesaint">
+                        <label>📅 투어 일정 & 메모</label>
+                        
+                        <div class="view-mode" id="view-thesaint" style="display: none;">
+                            <div class="view-header">
+                                <span class="saved-date-text" id="text-thesaint"></span>
+                            </div>
+                            <div class="saved-memo-text" id="memo-text-thesaint" style="display: none;"></div>
+                            <button class="btn-edit" onclick="enableEdit('thesaint')">수정</button>
                         </div>
-                        <div class="saved-memo-text" id="memo-text-verde" style="display: none;"></div>
-                        <button class="btn-edit" onclick="enableEdit('verde')">수정</button>
-                    </div>
 
-                    <div class="edit-mode" id="edit-verde">
-                        <input type="datetime-local" id="date-verde">
-                        <textarea id="memo-verde" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
-                        <button class="btn-save" onclick="saveReservation('verde')">저장</button>
-                    </div>
-
-                    <div class="status-msg" id="status-verde"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3순위: DMC타워 -->
-        <div class="card">
-            <span class="badge">3순위</span>
-            <div class="thumbnail-wrapper">
-                <img src="https://www.dmcwedding.co.kr/attachList/upload/hall/c20190908194157553/p20250414184547497/pop20251105121350627.jpg" referrerpolicy="no-referrer" alt="DMC타워">
-            </div>
-            <div class="info">
-                <div class="card-header-row">
-                    <h2>DMC타워 웨딩홀</h2>
-                    <button class="btn-info-icon" onclick="openPhotoModal('dmc', 'DMC타워')">
-                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-dmc">0</span>
-                    </button>
-                </div>
-                <div class="detail-list">
-                    <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 성암로 189 중소기업DMC타워</span></div>
-                    <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>6호선·공항철도·경의중앙선 DMC역 8번 출구 직접 연결</span></div>
-                    <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>펠리체홀 (유럽풍 하우스 웨딩 & 핑크 생화)</span></div>
-                </div>
-                <a href="https://www.dmcwedding.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
-
-                <div class="reservation-box" id="box-dmc">
-                    <label>📅 투어 일정 & 메모</label>
-                    
-                    <div class="view-mode" id="view-dmc" style="display: none;">
-                        <div class="view-header">
-                            <span class="saved-date-text" id="text-dmc"></span>
+                        <div class="edit-mode" id="edit-thesaint">
+                            <input type="datetime-local" id="date-thesaint">
+                            <textarea id="memo-thesaint" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <button class="btn-save" onclick="saveReservation('thesaint')">저장</button>
                         </div>
-                        <div class="saved-memo-text" id="memo-text-dmc" style="display: none;"></div>
-                        <button class="btn-edit" onclick="enableEdit('dmc')">수정</button>
-                    </div>
 
-                    <div class="edit-mode" id="edit-dmc">
-                        <input type="datetime-local" id="date-dmc">
-                        <textarea id="memo-dmc" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
-                        <button class="btn-save" onclick="saveReservation('dmc')">저장</button>
+                        <div class="status-msg" id="status-thesaint"></div>
                     </div>
-
-                    <div class="status-msg" id="status-dmc"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- 4순위: 월드컵컨벤션 -->
-        <div class="card">
-            <span class="badge">4순위</span>
-            <div class="thumbnail-wrapper">
-                <img src="https://cdn.imweb.me/upload/S20240204aca494e0b4938/98bba511c0de4.jpg" referrerpolicy="no-referrer" alt="월드컵컨벤션">
-            </div>
-            <div class="info">
-                <div class="card-header-row">
-                    <h2>월드컵컨벤션</h2>
-                    <button class="btn-info-icon" onclick="openPhotoModal('worldcup', '월드컵컨벤션')">
-                        ℹ️ 견적 <span class="img-count-badge" id="badge-count-worldcup">0</span>
-                    </button>
+            <!-- 2순위: 더베르G -->
+            <div class="card">
+                <span class="badge">2순위</span>
+                <div class="thumbnail-wrapper">
+                    <img src="https://cdn.imweb.me/upload/S20250509166c5ad4f8d79/6a7651e34a28d.png" referrerpolicy="no-referrer" alt="더베르G">
                 </div>
-                <div class="detail-list">
-                    <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 월드컵로 240 서울월드컵경기장 서측 2층</span></div>
-                    <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>6호선 월드컵경기장역 / 경기장 내 최고 수준 주차</span></div>
-                    <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>화려한 천장 아치 조명 및 크리스탈 샹들리에</span></div>
-                </div>
-                <a href="http://www.wocon.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+                <div class="info">
+                    <div class="card-header-row">
+                        <h2>더베르G (The Verde G)</h2>
+                        <button class="btn-info-icon" onclick="openPhotoModal('verde', '더베르G')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-verde">0</span>
+                        </button>
+                    </div>
+                    <div class="detail-list">
+                        <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 디지털로26길 38 지타워 2층</span></div>
+                        <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>2호선 구로디지털단지역 / 약 1,400대 이상 대형 주차장</span></div>
+                        <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>단독 가든홀 (유리 천창 채광 + 백색 생화 연출)</span></div>
+                    </div>
+                    <a href="http://www.theverde-g.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
 
-                <div class="reservation-box" id="box-worldcup">
-                    <label>📅 투어 일정 & 메모</label>
-                    
-                    <div class="view-mode" id="view-worldcup" style="display: none;">
-                        <div class="view-header">
-                            <span class="saved-date-text" id="text-worldcup"></span>
+                    <div class="reservation-box" id="box-verde">
+                        <label>📅 투어 일정 & 메모</label>
+                        
+                        <div class="view-mode" id="view-verde" style="display: none;">
+                            <div class="view-header">
+                                <span class="saved-date-text" id="text-verde"></span>
+                            </div>
+                            <div class="saved-memo-text" id="memo-text-verde" style="display: none;"></div>
+                            <button class="btn-edit" onclick="enableEdit('verde')">수정</button>
                         </div>
-                        <div class="saved-memo-text" id="memo-text-worldcup" style="display: none;"></div>
-                        <button class="btn-edit" onclick="enableEdit('worldcup')">수정</button>
-                    </div>
 
-                    <div class="edit-mode" id="edit-worldcup">
-                        <input type="datetime-local" id="date-worldcup">
-                        <textarea id="memo-worldcup" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
-                        <button class="btn-save" onclick="saveReservation('worldcup')">저장</button>
-                    </div>
+                        <div class="edit-mode" id="edit-verde">
+                            <input type="datetime-local" id="date-verde">
+                            <textarea id="memo-verde" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <button class="btn-save" onclick="saveReservation('verde')">저장</button>
+                        </div>
 
-                    <div class="status-msg" id="status-worldcup"></div>
+                        <div class="status-msg" id="status-verde"></div>
+                    </div>
                 </div>
             </div>
+
+            <!-- 3순위: DMC타워 -->
+            <div class="card">
+                <span class="badge">3순위</span>
+                <div class="thumbnail-wrapper">
+                    <img src="https://www.dmcwedding.co.kr/attachList/upload/hall/c20190908194157553/p20250414184547497/pop20251105121350627.jpg" referrerpolicy="no-referrer" alt="DMC타워">
+                </div>
+                <div class="info">
+                    <div class="card-header-row">
+                        <h2>DMC타워 웨딩홀</h2>
+                        <button class="btn-info-icon" onclick="openPhotoModal('dmc', 'DMC타워')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-dmc">0</span>
+                        </button>
+                    </div>
+                    <div class="detail-list">
+                        <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 성암로 189 중소기업DMC타워</span></div>
+                        <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>6호선·공항철도·경의중앙선 DMC역 8번 출구 직접 연결</span></div>
+                        <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>펠리체홀 (유럽풍 하우스 웨딩 & 핑크 생화)</span></div>
+                    </div>
+                    <a href="https://www.dmcwedding.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+
+                    <div class="reservation-box" id="box-dmc">
+                        <label>📅 투어 일정 & 메모</label>
+                        
+                        <div class="view-mode" id="view-dmc" style="display: none;">
+                            <div class="view-header">
+                                <span class="saved-date-text" id="text-dmc"></span>
+                            </div>
+                            <div class="saved-memo-text" id="memo-text-dmc" style="display: none;"></div>
+                            <button class="btn-edit" onclick="enableEdit('dmc')">수정</button>
+                        </div>
+
+                        <div class="edit-mode" id="edit-dmc">
+                            <input type="datetime-local" id="date-dmc">
+                            <textarea id="memo-dmc" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <button class="btn-save" onclick="saveReservation('dmc')">저장</button>
+                        </div>
+
+                        <div class="status-msg" id="status-dmc"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4순위: 월드컵컨벤션 -->
+            <div class="card">
+                <span class="badge">4순위</span>
+                <div class="thumbnail-wrapper">
+                    <img src="https://cdn.imweb.me/upload/S20240204aca494e0b4938/98bba511c0de4.jpg" referrerpolicy="no-referrer" alt="월드컵컨벤션">
+                </div>
+                <div class="info">
+                    <div class="card-header-row">
+                        <h2>월드컵컨벤션</h2>
+                        <button class="btn-info-icon" onclick="openPhotoModal('worldcup', '월드컵컨벤션')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-worldcup">0</span>
+                        </button>
+                    </div>
+                    <div class="detail-list">
+                        <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 월드컵로 240 서울월드컵경기장 서측 2층</span></div>
+                        <div class="detail-item"><strong>🚆 교통/주차:</strong> <span>6호선 월드컵경기장역 / 경기장 내 최고 수준 주차</span></div>
+                        <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>화려한 천장 아치 조명 및 크리스탈 샹들리에</span></div>
+                    </div>
+                    <a href="http://www.wocon.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+
+                    <div class="reservation-box" id="box-worldcup">
+                        <label>📅 투어 일정 & 메모</label>
+                        
+                        <div class="view-mode" id="view-worldcup" style="display: none;">
+                            <div class="view-header">
+                                <span class="saved-date-text" id="text-worldcup"></span>
+                            </div>
+                            <div class="saved-memo-text" id="memo-text-worldcup" style="display: none;"></div>
+                            <button class="btn-edit" onclick="enableEdit('worldcup')">수정</button>
+                        </div>
+
+                        <div class="edit-mode" id="edit-worldcup">
+                            <input type="datetime-local" id="date-worldcup">
+                            <textarea id="memo-worldcup" placeholder="메모 입력 (예: 견적 조건, 담당자, 준비물 등)"></textarea>
+                            <button class="btn-save" onclick="saveReservation('worldcup')">저장</button>
+                        </div>
+
+                        <div class="status-msg" id="status-worldcup"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>

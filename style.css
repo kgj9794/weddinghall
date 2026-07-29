@@ -643,6 +643,66 @@ header p {
 }
 
 /* ----------------------------------
+   🔔 알림 설정 전용 UI 스타일
+---------------------------------- */
+.notification-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notif-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.notif-input-group label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.notif-input-group input[type="datetime-local"],
+.notif-input-group input[type="text"],
+.notif-input-group textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.88rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-main);
+    outline: none;
+}
+
+.notif-input-group textarea {
+    height: 75px;
+    resize: vertical;
+}
+
+.notif-perm-warning {
+    font-size: 0.8rem;
+    color: #d32f2f;
+    background-color: #ffebee;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.btn-delete-notif {
+    padding: 8px 14px;
+    background-color: #d32f2f;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* ----------------------------------
    공통 모달 (Modal) 및 스크롤 스타일
 ---------------------------------- */
 .modal-overlay {

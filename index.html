@@ -58,7 +58,6 @@
 
             <header>
                 <h1>💍 웨딩홀 투어 리스트</h1>
-                <!--<p>투어 일정 및 견적 서류 DB 관리</p>-->
                 
                 <!-- 💍 실시간 D-Day 카운트다운 영역 -->
                 <div class="wedding-dday-container">
@@ -89,7 +88,16 @@
                         <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>41층 파노라마홀 (통창 고층 전경 및 화사한 채광)</span></div>
                         <div class="detail-item"><strong style="color:#d32f2f;">❄️ 12월 단점:</strong> <span>41층 통창 전경 특성상 겨울철 흐린 날씨/미세먼지 시 뷰 영향 및 연말 백화점 쇼핑객으로 인한 주차·엘리베이터 혼잡 발생 가능</span></div>
                     </div>
-                    <a href="http://thesaint.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+
+                    <!-- 링크 그룹 영역 -->
+                    <div class="hall-links-container">
+                        <div class="link-buttons-row">
+                            <a href="http://thesaint.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 →</a>
+                            <a href="#" id="insta-btn-thesaint" target="_blank" rel="noopener noreferrer" class="btn-link btn-insta hidden">📷 인스타</a>
+                            <a href="#" id="blog-btn-thesaint" target="_blank" rel="noopener noreferrer" class="btn-link btn-blog hidden">📝 블로그</a>
+                        </div>
+                        <button class="btn-link-edit" onclick="openLinkModal('thesaint', '더세인트')">🔗 링크 관리</button>
+                    </div>
                     
                     <div class="reservation-box" id="box-thesaint">
                         <label>📅 투어 일정 & 메모</label>
@@ -132,7 +140,16 @@
                         <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>단독 가든홀 (유리 천창 채광 + 백색 생화 연출)</span></div>
                         <div class="detail-item"><strong style="color:#d32f2f;">❄️ 12월 단점:</strong> <span>12월 동절기 일조량 감소로 천창 채광 효과가 봄/여름 대비 반감될 수 있으며, 구디역 도보 이동 시 하객 체감 추위 고려 필요</span></div>
                     </div>
-                    <a href="http://www.theverde-g.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+
+                    <!-- 링크 그룹 영역 -->
+                    <div class="hall-links-container">
+                        <div class="link-buttons-row">
+                            <a href="http://www.theverde-g.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 →</a>
+                            <a href="#" id="insta-btn-verde" target="_blank" rel="noopener noreferrer" class="btn-link btn-insta hidden">📷 인스타</a>
+                            <a href="#" id="blog-btn-verde" target="_blank" rel="noopener noreferrer" class="btn-link btn-blog hidden">📝 블로그</a>
+                        </div>
+                        <button class="btn-link-edit" onclick="openLinkModal('verde', '더베르G')">🔗 링크 관리</button>
+                    </div>
 
                     <div class="reservation-box" id="box-verde">
                         <label>📅 투어 일정 & 메모</label>
@@ -175,7 +192,16 @@
                         <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>펠리체홀 (유럽풍 하우스 웨딩 & 핑크 생화)</span></div>
                         <div class="detail-item"><strong style="color:#d32f2f;">❄️ 12월 단점:</strong> <span>천고가 상대적으로 다소 낮아 웅장함이 아쉬울 수 있으며, 지하철 직결 동선에도 연회장 및 로비 간 이동 시 약간 복잡함 느낄 수 있음</span></div>
                     </div>
-                    <a href="https://www.dmcwedding.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+
+                    <!-- 링크 그룹 영역 -->
+                    <div class="hall-links-container">
+                        <div class="link-buttons-row">
+                            <a href="https://www.dmcwedding.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 →</a>
+                            <a href="#" id="insta-btn-dmc" target="_blank" rel="noopener noreferrer" class="btn-link btn-insta hidden">📷 인스타</a>
+                            <a href="#" id="blog-btn-dmc" target="_blank" rel="noopener noreferrer" class="btn-link btn-blog hidden">📝 블로그</a>
+                        </div>
+                        <button class="btn-link-edit" onclick="openLinkModal('dmc', 'DMC타워')">🔗 링크 관리</button>
+                    </div>
 
                     <div class="reservation-box" id="box-dmc">
                         <label>📅 투어 일정 & 메모</label>
@@ -218,7 +244,16 @@
                         <div class="detail-item"><strong>☀️ 밝은 홀:</strong> <span>화려한 천장 아치 조명 및 크리스탈 샹들리에</span></div>
                         <div class="detail-item"><strong style="color:#d32f2f;">❄️ 12월 단점:</strong> <span>월드컵경기장 대형 부지 특성상 지하철역/광활한 주차장에서 웨딩홀 입구까지 도보 이동 시 12월 겨울 칼바람 노출이 큼</span></div>
                     </div>
-                    <a href="http://www.wocon.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 바로가기 →</a>
+
+                    <!-- 링크 그룹 영역 -->
+                    <div class="hall-links-container">
+                        <div class="link-buttons-row">
+                            <a href="http://www.wocon.co.kr/" target="_blank" rel="noopener noreferrer" class="btn-link">공식 홈페이지 →</a>
+                            <a href="#" id="insta-btn-worldcup" target="_blank" rel="noopener noreferrer" class="btn-link btn-insta hidden">📷 인스타</a>
+                            <a href="#" id="blog-btn-worldcup" target="_blank" rel="noopener noreferrer" class="btn-link btn-blog hidden">📝 블로그</a>
+                        </div>
+                        <button class="btn-link-edit" onclick="openLinkModal('worldcup', '월드컵컨벤션')">🔗 링크 관리</button>
+                    </div>
 
                     <div class="reservation-box" id="box-worldcup">
                         <label>📅 투어 일정 & 메모</label>
@@ -394,6 +429,31 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-modal-confirm" style="width:100%;" onclick="saveWeddingDate()">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔗 모달 8: 인스타/블로그 링크 편집 모달 -->
+    <div id="link-modal" class="modal-overlay hidden" onclick="closeLinkModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="link-modal-title">🔗 링크 관리</h2>
+                <button class="modal-close-btn" onclick="closeLinkModal()">✕</button>
+            </div>
+            <div class="link-form">
+                <p style="font-size:0.83rem; color:var(--text-sub); line-height:1.45;">인스타그램 또는 블로그 링크를 입력해 주세요. (비워두면 버튼이 숨겨집니다)</p>
+                <div class="dday-input-group">
+                    <label>📷 인스타그램 링크</label>
+                    <input type="url" id="input-insta-url" placeholder="https://www.instagram.com/...">
+                </div>
+                <div class="dday-input-group" style="margin-top:10px;">
+                    <label>📝 블로그 후기 링크</label>
+                    <input type="url" id="input-blog-url" placeholder="https://blog.naver.com/...">
+                </div>
+            </div>
+            <div id="link-status-msg" class="status-msg"></div>
+            <div class="modal-footer">
+                <button class="btn-modal-confirm" style="width:100%;" onclick="saveHallLinks()">저장하기</button>
             </div>
         </div>
     </div>

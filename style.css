@@ -19,6 +19,14 @@
     --green-text: #2e7d32;
     --green-btn: #4caf50;
 
+    /* 📷 인스타 / 📝 블로그 버튼 컬러 */
+    --insta-bg: #fdf2f8;
+    --insta-border: #f38ba8;
+    --insta-text: #c2255c;
+    --blog-bg: #f1f8e9;
+    --blog-border: #aed581;
+    --blog-text: #558b2f;
+
     /* 입력창 & 모달 배경 */
     --input-bg: #ffffff;
     --modal-bg: #ffffff;
@@ -42,11 +50,17 @@
     --pink-text: #ff7597;
     --pink-btn: #e64980;
 
-    /* 🟢 다크모드 초록 테마 */
     --green-bg: #1b3820;
     --green-border: #2e6037;
     --green-text: #81c784;
     --green-btn: #388e3c;
+
+    --insta-bg: #321d28;
+    --insta-border: #6e2743;
+    --insta-text: #ff8da1;
+    --blog-bg: #1f301d;
+    --blog-border: #385e33;
+    --blog-text: #aed581;
 
     --input-bg: #2a2a2a;
     --modal-bg: #1e1e1e;
@@ -387,7 +401,7 @@ header p {
     opacity: 0.85;
 }
 
-.dday-form {
+.dday-form, .link-form {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -405,7 +419,8 @@ header p {
     color: var(--primary-color);
 }
 
-.dday-input-group input[type="datetime-local"] {
+.dday-input-group input[type="datetime-local"],
+.dday-input-group input[type="url"] {
     width: 100%;
     padding: 10px;
     font-size: 0.88rem;
@@ -534,26 +549,75 @@ header p {
     color: var(--text-main);
 }
 
-.btn-link {
-    display: block;
+/* 링크 그룹 컨테이너 */
+.hall-links-container {
     margin-top: 14px;
-    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.link-buttons-row {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.btn-link {
+    flex: 1;
+    padding: 9px 0;
     background-color: var(--sub-box-bg);
     color: var(--primary-color);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: bold;
     text-align: center;
     border-radius: 8px;
     text-decoration: none;
-    transition: background-color 0.2s ease;
+    border: 1px solid var(--border-color);
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-link.btn-insta {
+    background-color: var(--insta-bg);
+    border-color: var(--insta-border);
+    color: var(--insta-text);
+}
+
+.btn-link.btn-blog {
+    background-color: var(--blog-bg);
+    border-color: var(--blog-border);
+    color: var(--blog-text);
+}
+
+.btn-link.hidden {
+    display: none !important;
 }
 
 .btn-link:hover {
     opacity: 0.85;
 }
 
+.btn-link-edit {
+    width: 100%;
+    padding: 5px 0;
+    background: none;
+    border: none;
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    text-align: center;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.btn-link-edit:hover {
+    color: var(--primary-color);
+}
+
 .reservation-box {
-    margin-top: 16px;
+    margin-top: 14px;
     padding: 14px;
     background-color: var(--sub-box-bg);
     border: 1px dashed var(--primary-color);

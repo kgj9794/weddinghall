@@ -42,9 +42,6 @@
         <div class="main-header-sticky">
             <!-- 상단 네비게이션 바 -->
             <div class="top-nav">
-                <button class="top-nav-btn" onclick="refreshNotifications()">
-                    🔄 알림 갱신
-                </button>
                 <button class="top-nav-btn" onclick="openRecommendModal()">
                     ✨ 제미나이 추천
                 </button>
@@ -62,6 +59,12 @@
             <header>
                 <h1>💍 웨딩홀 투어 리스트</h1>
                 <p>투어 일정 및 견적 서류 DB 관리</p>
+                
+                <!-- 💍 실시간 D-Day 카운트다운 영역 -->
+                <div class="wedding-dday-container">
+                    <div id="dday-text" class="dday-text">💍 결혼 예정일을 설정해 주세요</div>
+                    <button class="btn-dday-edit" onclick="openWeddingDateModal()">⚙️ 설정</button>
+                </div>
             </header>
         </div>
 
@@ -76,14 +79,9 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>더세인트 (The Saint)</h2>
-                        <div style="display:flex; gap:4px;">
-                            <button class="btn-info-icon" onclick="openNotificationModal('thesaint')">
-                                🔔 <span id="badge-notif-thesaint">알림</span>
-                            </button>
-                            <button class="btn-info-icon" onclick="openPhotoModal('thesaint', '더세인트')">
-                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-thesaint">0</span>
-                            </button>
-                        </div>
+                        <button class="btn-info-icon" onclick="openPhotoModal('thesaint', '더세인트')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-thesaint">0</span>
+                        </button>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 경인로 662 디큐브시티 6층 / 41층</span></div>
@@ -124,14 +122,9 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>더베르G (The Verde G)</h2>
-                        <div style="display:flex; gap:4px;">
-                            <button class="btn-info-icon" onclick="openNotificationModal('verde')">
-                                🔔 <span id="badge-notif-verde">알림</span>
-                            </button>
-                            <button class="btn-info-icon" onclick="openPhotoModal('verde', '더베르G')">
-                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-verde">0</span>
-                            </button>
-                        </div>
+                        <button class="btn-info-icon" onclick="openPhotoModal('verde', '더베르G')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-verde">0</span>
+                        </button>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 구로구 디지털로26길 38 지타워 2층</span></div>
@@ -172,14 +165,9 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>DMC타워 웨딩홀</h2>
-                        <div style="display:flex; gap:4px;">
-                            <button class="btn-info-icon" onclick="openNotificationModal('dmc')">
-                                🔔 <span id="badge-notif-dmc">알림</span>
-                            </button>
-                            <button class="btn-info-icon" onclick="openPhotoModal('dmc', 'DMC타워')">
-                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-dmc">0</span>
-                            </button>
-                        </div>
+                        <button class="btn-info-icon" onclick="openPhotoModal('dmc', 'DMC타워')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-dmc">0</span>
+                        </button>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 성암로 189 중소기업DMC타워</span></div>
@@ -220,14 +208,9 @@
                 <div class="info">
                     <div class="card-header-row">
                         <h2>월드컵컨벤션</h2>
-                        <div style="display:flex; gap:4px;">
-                            <button class="btn-info-icon" onclick="openNotificationModal('worldcup')">
-                                🔔 <span id="badge-notif-worldcup">알림</span>
-                            </button>
-                            <button class="btn-info-icon" onclick="openPhotoModal('worldcup', '월드컵컨벤션')">
-                                ℹ️ 견적 <span class="img-count-badge" id="badge-count-worldcup">0</span>
-                            </button>
-                        </div>
+                        <button class="btn-info-icon" onclick="openPhotoModal('worldcup', '월드컵컨벤션')">
+                            ℹ️ 견적 <span class="img-count-badge" id="badge-count-worldcup">0</span>
+                        </button>
                     </div>
                     <div class="detail-list">
                         <div class="detail-item"><strong>📍 위치:</strong> <span>서울 마포구 월드컵로 240 서울월드컵경기장 서측 2층</span></div>
@@ -395,34 +378,22 @@
         </div>
     </div>
 
-    <!-- 🔔 모달 7: 구글 캘린더 알림 설정 모달 -->
-    <div id="notification-modal" class="modal-overlay hidden" onclick="closeNotificationModal()">
+    <!-- 📅 모달 7: 결혼 예정일 D-Day 설정 모달 -->
+    <div id="wedding-date-modal" class="modal-overlay hidden" onclick="closeWeddingDateModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h2 id="notif-modal-title">🔔 구글 캘린더 알림 설정</h2>
-                <button class="modal-close-btn" onclick="closeNotificationModal()">✕</button>
+                <h2>📅 결혼 예정일 설정</h2>
+                <button class="modal-close-btn" onclick="closeWeddingDateModal()">✕</button>
             </div>
-            <div class="notification-form">
-                <p style="font-size:0.83rem; color:var(--text-sub); line-height:1.45;">💡 구글 캘린더와 연동되어 신랑/신부님의 스마트폰 캘린더 푸시 알림으로 100% 확실하게 발송됩니다.</p>
-
-                <div class="notif-input-group">
-                    <label>📅 알림 일시</label>
-                    <input type="datetime-local" id="notif-datetime">
-                </div>
-
-                <div class="notif-input-group">
-                    <label>📌 알림 제목</label>
-                    <input type="text" id="notif-title" placeholder="예: 더세인트 예약 오픈 당일 홀팅 시도">
-                </div>
-
-                <div class="notif-input-group">
-                    <label>📝 알림 내용</label>
-                    <textarea id="notif-body" placeholder="예: 오전 10시 전화 예약 오픈! 선착순 접수 시작"></textarea>
+            <div class="dday-form">
+                <p style="font-size:0.83rem; color:var(--text-sub); line-height:1.45;">예정일을 지정하면 메인 화면에 D-Day 실시간 카운트다운이 표시됩니다.</p>
+                <div class="dday-input-group">
+                    <label>📅 결혼예정일 및 시간</label>
+                    <input type="datetime-local" id="wedding-date-input">
                 </div>
             </div>
-            <div class="modal-footer" style="gap: 8px;">
-                <button class="btn-delete-notif" onclick="deleteNotification()">🗑️ 삭제</button>
-                <button class="btn-modal-confirm" style="flex:1;" onclick="saveNotification()">🔔 알림 저장</button>
+            <div class="modal-footer">
+                <button class="btn-modal-confirm" style="width:100%;" onclick="saveWeddingDate()">저장하기</button>
             </div>
         </div>
     </div>

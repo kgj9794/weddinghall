@@ -45,7 +45,7 @@ function pushModalState(modalId) {
 
 function closeModal(modalId) {
     if (history.state && history.state.openModal) {
-        history.back(); // history.back()이 실행되면 'popstate' 이벤트가 발생하여 closeTopModalUI()가 실행됩니다.
+        history.back();
     } else {
         closeTopModalUI();
     }
@@ -56,6 +56,7 @@ function closeTopModalUI() {
     const zoomModal = document.getElementById("zoom-modal");
     const photoModal = document.getElementById("photo-modal");
     const mapModal = document.getElementById("map-modal");
+    const recommendModal = document.getElementById("recommend-modal");
     const conditionsModal = document.getElementById("conditions-modal");
     const overviewModal = document.getElementById("overview-modal");
 
@@ -67,6 +68,8 @@ function closeTopModalUI() {
         activeHallId = null;
     } else if (mapModal && !mapModal.classList.contains("hidden")) {
         mapModal.classList.add("hidden");
+    } else if (recommendModal && !recommendModal.classList.contains("hidden")) {
+        recommendModal.classList.add("hidden");
     } else if (conditionsModal && !conditionsModal.classList.contains("hidden")) {
         conditionsModal.classList.add("hidden");
         if (autoCloseInterval) clearInterval(autoCloseInterval);
@@ -425,6 +428,19 @@ function saveReservation(hallId) {
 
     setSavedState(hallId, dateVal, memoVal, existingImgs);
     syncDataToDb(hallId, status);
+}
+
+// ----------------------------------
+// ✨ 제미나이 추천 모달 관리
+// ----------------------------------
+function openRecommendModal() {
+    pushModalState("recommend-modal");
+    document.getElementById("recommend-modal").classList.remove("hidden");
+    updateBodyScroll();
+}
+
+function closeRecommendModal() {
+    closeModal("recommend-modal");
 }
 
 // ----------------------------------

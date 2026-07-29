@@ -9,14 +9,15 @@ let autoCloseInterval = null;
 let currentZoomScale = 1.0;
 let currentZoomIndex = 0; // 확대 뷰어 내 현재 사진 인덱스
 
-// 터치 스와이프 감지용 변수
-let zoomTouchStartX = 0;
-let zoomTouchEndX = 0;
+// 핀치 투 줌 감지용 변수
+let initialPinchDistance = 0;
+let initialScale = 1.0;
 
 document.addEventListener("DOMContentLoaded", function() {
-    initTheme(); // 야간 시간대 다크모드 자동 초기화
-    checkAuth();  // 🔒 인증 확인 후 데이터 로드 진입
-    initZoomKeyNav(); // 확대 모달 키보드 단축키 지원
+    initTheme();      // 야간 시간대 다크모드 자동 초기화
+    checkAuth();       // 🔒 인증 확인 후 데이터 로드 진입
+    initZoomKeyNav();  // 확대 모달 키보드 단축키 지원
+    initPinchZoom();   // 🤌 핀치 투 줌(두 손가락 확대/축소) 초기화
 });
 
 // ----------------------------------
@@ -121,15 +122,15 @@ function setTheme(theme) {
     }
 }
 
-// 팝업/잠금창 열림 시 배경 메인 화면 스크롤 제어
+// 🛑 팝업/잠금창 열림 시 배경 메인 화면 스크롤 완전 차단
 function updateBodyScroll() {
     const isLocked = !document.getElementById("password-overlay")?.classList.contains("hidden");
     const hasVisibleModal = document.querySelector('.modal-overlay:not(.hidden), .zoom-overlay:not(.hidden)');
     
     if (isLocked || hasVisibleModal) {
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add("modal-open");
     } else {
-        document.body.style.overflow = '';
+        document.body.classList.remove("modal-open");
     }
 }
 
@@ -517,7 +518,7 @@ function deletePhoto(index) {
 }
 
 // ----------------------------------
-// 🔍 고화질 Zoom 확대 뷰어 & 슬라이더 탐색
+// 🔍 고화질 Zoom 확대 뷰어 & 핀치 투 줌
 // ----------------------------------
 function openZoomModal(index = 0) {
     if (!activeHallId || !currentDbData[activeHallId] || !currentDbData[activeHallId].images) return;
@@ -536,7 +537,6 @@ function updateZoomView() {
         return;
     }
 
-    // 인덱스 범위 안전 보장
     if (currentZoomIndex < 0) currentZoomIndex = images.length - 1;
     if (currentZoomIndex >= images.length) currentZoomIndex = 0;
 
@@ -551,7 +551,6 @@ function updateZoomView() {
 
     if (counter) counter.innerText = `${currentZoomIndex + 1} / ${images.length}`;
 
-    // 사진이 1장만 있으면 이동 버튼 숨김 처리
     if (images.length <= 1) {
         if (prevBtn) prevBtn.style.display = "none";
         if (nextBtn) nextBtn.style.display = "none";
@@ -575,6 +574,9 @@ function nextZoomImage(event) {
 
 function closeZoomModal() {
     document.getElementById("zoom-modal").classList.add("hidden");
+    currentZoomScale = 1.0;
+    const zoomImg = document.getElementById("zoom-img");
+    if (zoomImg) zoomImg.style.transform = `scale(1.0)`;
     updateBodyScroll();
 }
 
@@ -583,27 +585,44 @@ function toggleZoomIn(event) {
     document.getElementById("zoom-img").style.transform = `scale(${currentZoomScale})`;
 }
 
-// 모바일 터치 스와이프 감지 로직
-function handleZoomTouchStart(event) {
-    if (event.touches && event.touches.length > 0) {
-        zoomTouchStartX = event.touches[0].clientX;
-    }
-}
+// 🤌 핀치 투 줌 (두 손가락 확대/축소 제스처)
+function initPinchZoom() {
+    const wrapper = document.querySelector(".zoom-img-wrapper");
+    const zoomImg = document.getElementById("zoom-img");
 
-function handleZoomTouchEnd(event) {
-    if (event.changedTouches && event.changedTouches.length > 0) {
-        zoomTouchEndX = event.changedTouches[0].clientX;
-        const diffX = zoomTouchEndX - zoomTouchStartX;
+    if (!wrapper || !zoomImg) return;
 
-        // 40px 이상 좌/우 스와이프 시 사진 이동
-        if (Math.abs(diffX) > 40) {
-            if (diffX < 0) {
-                nextZoomImage(); // 왼쪽으로 쓱 밀면 다음 사진
-            } else {
-                prevZoomImage(); // 오른쪽으로 쓱 밀면 이전 사진
+    wrapper.addEventListener("touchstart", function(e) {
+        if (e.touches.length === 2) {
+            initialPinchDistance = getTouchDistance(e.touches);
+            initialScale = currentZoomScale;
+        }
+    }, { passive: true });
+
+    wrapper.addEventListener("touchmove", function(e) {
+        if (e.touches.length === 2 && initialPinchDistance > 0) {
+            const currentDistance = getTouchDistance(e.touches);
+            if (currentDistance > 0) {
+                let newScale = initialScale * (currentDistance / initialPinchDistance);
+                // 최소 1.0배 ~ 최대 4.0배 범위 제한
+                newScale = Math.max(1.0, Math.min(newScale, 4.0));
+                currentZoomScale = newScale;
+                zoomImg.style.transform = `scale(${currentZoomScale})`;
             }
         }
-    }
+    }, { passive: true });
+
+    wrapper.addEventListener("touchend", function(e) {
+        if (e.touches.length < 2) {
+            initialPinchDistance = 0;
+        }
+    }, { passive: true });
+}
+
+function getTouchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
 }
 
 // 키보드 방향키 탐색 기능 (PC 대응)

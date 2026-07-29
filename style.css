@@ -67,6 +67,13 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* 🔒 팝업 활성화 시 메인 화면 배경 스크롤 차단 */
+body.modal-open {
+    overflow: hidden !important;
+    height: 100vh !important;
+    touch-action: none;
+}
+
 /* ----------------------------------
    🛡️ 보안 강화를 위한 메인 콘텐츠 숨김
 ---------------------------------- */
@@ -98,6 +105,7 @@ body {
     z-index: 30000;
     padding: 20px;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    overscroll-behavior: contain;
 }
 
 .password-overlay.hidden {
@@ -598,6 +606,7 @@ header p {
     z-index: 10000;
     padding: 16px;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    overscroll-behavior: contain;
 }
 
 .modal-overlay.hidden {
@@ -619,6 +628,8 @@ header p {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
 }
 
 .modal-header {
@@ -757,6 +768,8 @@ header p {
     align-items: center;
     padding: 16px;
     user-select: none;
+    touch-action: none; /* 배경 드래그 차단 */
+    overscroll-behavior: contain;
 }
 
 .zoom-overlay.hidden {
@@ -844,18 +857,20 @@ header p {
 .zoom-img-wrapper {
     max-width: 100%;
     max-height: 80vh;
-    overflow: auto;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
+    touch-action: none;
 }
 
 .zoom-img-wrapper img {
     max-width: 100%;
     max-height: 80vh;
     object-fit: contain;
-    transition: transform 0.2s ease;
+    transition: transform 0.1s ease-out;
     cursor: grab;
+    touch-action: none;
 }
 
 .overview-list, .conditions-list {

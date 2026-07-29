@@ -617,7 +617,6 @@ function initPinchZoom() {
 
     if (!wrapper || !zoomImg) return;
 
-    // 모바일 터치 이벤트 (2손가락 핀치 줌 / 1손가락 자유 드래그)
     wrapper.addEventListener("touchstart", function(e) {
         if (e.touches.length === 2) {
             isDragging = false;
@@ -637,7 +636,7 @@ function initPinchZoom() {
             const currentDistance = getTouchDistance(e.touches);
             if (currentDistance > 0) {
                 let newScale = initialScale * (currentDistance / initialPinchDistance);
-                newScale = Math.max(1.0, Math.min(newScale, 4.0)); // 1.0배 ~ 4.0배
+                newScale = Math.max(1.0, Math.min(newScale, 4.0));
                 currentZoomScale = newScale;
                 
                 if (currentZoomScale === 1.0) {
@@ -660,7 +659,6 @@ function initPinchZoom() {
         if (e.touches.length === 0) isDragging = false;
     }, { passive: true });
 
-    // PC 마우스 드래그 이동 대응
     zoomImg.addEventListener("mousedown", function(e) {
         if (currentZoomScale > 1.0) {
             isDragging = true;

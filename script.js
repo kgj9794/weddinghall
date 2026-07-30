@@ -1,6 +1,3 @@
-// 비밀 토큰 (GAS의 SECRET_TOKEN과 일치해야 함)
-const AUTH_TOKEN = "wedding_tour_secret_2026";
-
 const GAS_URL = "https://script.google.com/macros/s/AKfycbz5fig_p34TbGLs3GzgggjRj4xtrQEHu3DBGwD0GZOUhHIvxKiyw7qwloZ4PhaXgmqq1g/exec";
 
 let currentDbData = {};
@@ -32,6 +29,19 @@ document.addEventListener("DOMContentLoaded", function() {
     initHistoryNav();      // 📱 안드로이드 뒤로가기 버튼(History API) 연동 초기화
     initCountdownTimer();  // 💍 실시간 D-Day 타이머 시작
 });
+
+// ----------------------------------
+// 🔑 사용자 세션 비밀번호 관리
+// ----------------------------------
+function getAuthPassword() {
+    return sessionStorage.getItem("wedding_tour_pass") || localStorage.getItem("wedding_tour_pass") || "";
+}
+
+function clearAuthSession() {
+    localStorage.removeItem("wedding_tour_authed");
+    localStorage.removeItem("wedding_tour_pass");
+    sessionStorage.removeItem("wedding_tour_pass");
+}
 
 // ----------------------------------
 // 💍 실시간 D-Day 카운트다운 타이머
@@ -104,7 +114,7 @@ function saveWeddingDate() {
     updateCountdown();
 
     const payload = {
-        authToken: AUTH_TOKEN,
+        password: getAuthPassword(),
         action: "saveWeddingDate",
         weddingDate: dateVal
     };
@@ -118,6 +128,10 @@ function saveWeddingDate() {
     .then(data => {
         if (data.status === "success") {
             alert("💍 결혼 예정일이 정상적으로 DB에 저장되었습니다.");
+        } else if (data.message && data.message.includes("인증")) {
+            alert("인증이 만료되었습니다. 다시 로그인해 주세요.");
+            clearAuthSession();
+            checkAuth();
         }
     })
     .catch(err => {
@@ -187,10 +201,11 @@ function closeTopModalUI() {
 // ----------------------------------
 function checkAuth() {
     const isAuthed = localStorage.getItem("wedding_tour_authed");
+    const savedPass = getAuthPassword();
     const overlay = document.getElementById("password-overlay");
     const mainContent = document.getElementById("main-content");
     
-    if (isAuthed === "true") {
+    if (isAuthed === "true" && savedPass) {
         if (overlay) overlay.classList.add("hidden");
         if (mainContent) mainContent.classList.remove("hidden");
         
@@ -222,6 +237,8 @@ function verifyPassword() {
         return;
     }
 
+    const inputVal = input.value.trim();
+
     if (errorMsg) {
         errorMsg.style.color = "var(--primary-color)";
         errorMsg.innerText = "⏳ 비밀번호 확인 중...";
@@ -229,7 +246,7 @@ function verifyPassword() {
 
     const payload = {
         action: "verifyPassword",
-        password: input.value
+        password: inputVal
     };
 
     fetch(GAS_URL, {
@@ -241,6 +258,8 @@ function verifyPassword() {
     .then(data => {
         if (data.status === "success") {
             localStorage.setItem("wedding_tour_authed", "true");
+            localStorage.setItem("wedding_tour_pass", inputVal);
+            sessionStorage.setItem("wedding_tour_pass", inputVal);
             if (errorMsg) errorMsg.innerText = "";
             input.value = "";
             checkAuth();
@@ -489,13 +508,25 @@ function enableEdit(hallId) {
 function loadReservations() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const pass = getAuthPassword();
 
-    fetch(GAS_URL + "?action=get", { signal: controller.signal })
+    fetch(`${GAS_URL}?action=get&password=${encodeURIComponent(pass)}`, { signal: controller.signal })
         .then(res => {
             clearTimeout(timeoutId);
             return res.json();
         })
-        .then(data => {
+        .then(resData => {
+            if (resData.status === "error") {
+                if (resData.message && resData.message.includes("권한")) {
+                    alert("인증이 유효하지 않습니다. 비밀번호를 다시 입력해 주세요.");
+                    clearAuthSession();
+                    checkAuth();
+                    return;
+                }
+            }
+
+            const data = resData.data || resData;
+
             if (data.weddingDate) {
                 targetWeddingDate = data.weddingDate;
                 localStorage.setItem("wedding_date_cache", data.weddingDate);
@@ -538,7 +569,7 @@ function syncDataToDb(hallId, statusElement) {
     }
 
     const payload = {
-        authToken: AUTH_TOKEN,
+        password: getAuthPassword(),
         action: "save",
         hallId: hallId,
         reservedAt: hallData.reservedAt || "",
@@ -562,8 +593,13 @@ function syncDataToDb(hallId, statusElement) {
             }
         } else {
             if (statusElement) {
-                statusElement.innerText = "⚠️ 시트 저장 지연 (로컬 저장 완료)";
+                statusElement.innerText = "⚠️ 저장 권한 오류 (비밀번호 확인 필요)";
                 statusElement.style.color = "#d32f2f";
+            }
+            if (data.message && data.message.includes("인증")) {
+                alert("인증이 만료되었습니다.");
+                clearAuthSession();
+                checkAuth();
             }
         }
     })
@@ -624,7 +660,6 @@ function saveHallLinks() {
 
     const existing = currentDbData[activeLinkHallId] || { reservedAt: "", memo: "", images: [] };
 
-    // 즉시 상태 반영 및 버튼 표시 갱신
     setHallDataState(activeLinkHallId, existing.reservedAt, existing.memo, existing.images, instaVal, blogVal);
     syncDataToDb(activeLinkHallId, statusMsg);
 
@@ -762,7 +797,7 @@ async function handleFileUpload(event) {
             const pureBase64 = await compressImage(files[i]);
             
             const payload = {
-                authToken: AUTH_TOKEN,
+                password: getAuthPassword(),
                 action: "uploadImage",
                 base64: pureBase64
             };
@@ -887,7 +922,6 @@ function toggleZoomIn(event) {
     applyZoomTransform();
 }
 
-// 🤌 핀치 투 줌 및 확대 상태 손가락/마우스 자유 드래그 이동
 function initPinchZoom() {
     const wrapper = document.querySelector(".zoom-img-wrapper");
     const zoomImg = document.getElementById("zoom-img");
@@ -968,7 +1002,6 @@ function getTouchDistance(touches) {
     return Math.sqrt(dx * dx + dy * dy);
 }
 
-// 키보드 방향키 탐색 기능 (PC 대응)
 function initZoomKeyNav() {
     document.addEventListener("keydown", function(e) {
         const zoomModal = document.getElementById("zoom-modal");
@@ -1032,7 +1065,6 @@ function hideConditionsToday() {
     closeConditionsModal();
 }
 
-// 한눈에 보기 모달
 function openOverviewModal() {
     pushModalState("overview-modal");
     const container = document.getElementById("overview-list");

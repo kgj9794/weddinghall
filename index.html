@@ -381,7 +381,10 @@
 
             <div class="modal-footer">
                 <button class="btn-hide-today" onclick="hideConditionsToday()">오늘 하루 동안 보지 않기</button>
-                <button id="btn-cond-toggle" class="btn-modal-confirm" onclick="toggleConditionsEdit()">⚙️ 조건 수정</button>
+                <div style="display:flex; gap:6px;">
+                    <button id="btn-cond-toggle" class="btn-modal-confirm hidden" onclick="toggleConditionsEdit()">⚙️ 조건 수정</button>
+                    <button class="btn-modal-confirm" style="background-color: var(--text-sub);" onclick="closeConditionsModal()">닫기</button>
+                </div>
             </div>
         </div>
     </div>

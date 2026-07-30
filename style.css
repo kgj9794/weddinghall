@@ -76,6 +76,11 @@
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* 🛑 [핵심 수정] 범용 hidden 클래스 강제 적용 */
+.hidden {
+    display: none !important;
+}
+
 html, body {
     width: 100%;
     max-width: 100vw;
@@ -117,10 +122,6 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-.main-content.hidden {
-    display: none !important;
 }
 
 .password-overlay {
@@ -574,10 +575,6 @@ header p {
     color: var(--blog-text);
 }
 
-.btn-link.hidden {
-    display: none !important;
-}
-
 .btn-link:hover {
     opacity: 0.85;
 }
@@ -771,12 +768,6 @@ header p {
     padding: 16px;
     transition: opacity 0.3s ease, visibility 0.3s ease;
     overscroll-behavior: contain;
-}
-
-.modal-overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
 }
 
 .modal-content {
@@ -996,10 +987,6 @@ header p {
     user-select: none;
     touch-action: none;
     overscroll-behavior: contain;
-}
-
-.zoom-overlay.hidden {
-    display: none;
 }
 
 .zoom-close-btn {

@@ -1072,7 +1072,7 @@ function toggleConditionsEdit() {
     if (statusMsg) statusMsg.innerText = "";
 
     if (editDiv.classList.contains("hidden")) {
-        // 보기 모드 -> 수정 모드로 전환
+        // 보기 모드 -> 수정 모드로 전환 (인풋 박스 노출)
         document.getElementById("cond-edit-weddingDate").value = currentConditions.weddingDateCond || "";
         document.getElementById("cond-edit-time").value = currentConditions.timeCond || "";
         document.getElementById("cond-edit-guests").value = currentConditions.guestsCond || "";
@@ -1166,41 +1166,80 @@ function checkInitialConditionsPopup() {
 }
 
 function openConditionsModal(isAutoClose = false) {
-    pushModalState("conditions-modal");
+    if (!isAutoClose) {
+        pushModalState("conditions-modal");
+    }
+
     const msgEl = document.getElementById("auto-close-msg");
-    document.getElementById("conditions-modal").classList.remove("hidden");
-    updateBodyScroll();
-    
+    const btnToggle = document.getElementById("btn-cond-toggle");
+    const statusMsg = document.getElementById("conditions-status-msg");
+    const viewDiv = document.getElementById("conditions-view-mode");
+    const editDiv = document.getElementById("conditions-edit-mode");
+
+    // 항상 보기 모드로 정돈
+    if (viewDiv && editDiv) {
+        viewDiv.classList.remove("hidden");
+        editDiv.classList.add("hidden");
+    }
+    if (statusMsg) statusMsg.innerText = "";
+
     if (autoCloseInterval) clearInterval(autoCloseInterval);
 
     if (isAutoClose) {
+        // 첫 접속 시 5초 카운트다운 팝업 모드 ([조건 수정] 버튼 숨김)
+        if (btnToggle) btnToggle.classList.add("hidden");
+
         let secondsLeft = 5;
-        msgEl.innerText = `⏳ ${secondsLeft}초 뒤에 해당 창이 닫혀요`;
-        msgEl.style.display = "block";
+        if (msgEl) {
+            msgEl.innerText = `⏳ ${secondsLeft}초 뒤에 해당 창이 닫혀요`;
+            msgEl.style.display = "block";
+        }
 
         autoCloseInterval = setInterval(() => {
             secondsLeft--;
             if (secondsLeft > 0) {
-                msgEl.innerText = `⏳ ${secondsLeft}초 뒤에 해당 창이 닫혀요`;
+                if (msgEl) msgEl.innerText = `⏳ ${secondsLeft}초 뒤에 해당 창이 닫혀요`;
             } else {
                 closeConditionsModal();
             }
         }, 1000);
     } else {
-        msgEl.style.display = "none";
+        // 상단 [🎯 조건] 직접 클릭 모드 ([조건 수정] 버튼 노출)
+        if (msgEl) msgEl.style.display = "none";
+        if (btnToggle) {
+            btnToggle.classList.remove("hidden");
+            btnToggle.innerText = "⚙️ 조건 수정";
+        }
     }
+
+    document.getElementById("conditions-modal").classList.remove("hidden");
+    updateBodyScroll();
 }
 
 function closeConditionsModal() {
+    if (autoCloseInterval) {
+        clearInterval(autoCloseInterval);
+        autoCloseInterval = null;
+    }
+
+    const modal = document.getElementById("conditions-modal");
+    if (modal) modal.classList.add("hidden");
+
     const viewDiv = document.getElementById("conditions-view-mode");
     const editDiv = document.getElementById("conditions-edit-mode");
     const btnToggle = document.getElementById("btn-cond-toggle");
+
     if (viewDiv && editDiv) {
         viewDiv.classList.remove("hidden");
         editDiv.classList.add("hidden");
         if (btnToggle) btnToggle.innerText = "⚙️ 조건 수정";
     }
-    closeModal("conditions-modal");
+
+    updateBodyScroll();
+
+    if (history.state && history.state.openModal === "conditions-modal") {
+        history.back();
+    }
 }
 
 function hideConditionsToday() {

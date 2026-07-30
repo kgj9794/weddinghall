@@ -1176,22 +1176,25 @@ function openConditionsModal(isAutoClose = false) {
     const viewDiv = document.getElementById("conditions-view-mode");
     const editDiv = document.getElementById("conditions-edit-mode");
 
-    // 항상 보기 모드로 정돈
-    if (viewDiv && editDiv) {
-        viewDiv.classList.remove("hidden");
-        editDiv.classList.add("hidden");
-    }
+    // 항상 초기 진입 시 보기 모드로 리셋 (인풋 박스 숨김)
+    if (viewDiv) viewDiv.classList.remove("hidden");
+    if (editDiv) editDiv.classList.add("hidden");
     if (statusMsg) statusMsg.innerText = "";
 
     if (autoCloseInterval) clearInterval(autoCloseInterval);
 
     if (isAutoClose) {
-        // 첫 접속 시 5초 카운트다운 팝업 모드 ([조건 수정] 버튼 숨김)
-        if (btnToggle) btnToggle.classList.add("hidden");
+        // [첫 접속 5초 자동 팝업 모드]
+        // 조건 수정 버튼 숨김
+        if (btnToggle) {
+            btnToggle.classList.add("hidden");
+            btnToggle.innerText = "⚙️ 조건 수정";
+        }
 
         let secondsLeft = 5;
         if (msgEl) {
             msgEl.innerText = `⏳ ${secondsLeft}초 뒤에 해당 창이 닫혀요`;
+            msgEl.classList.remove("hidden");
             msgEl.style.display = "block";
         }
 
@@ -1204,8 +1207,13 @@ function openConditionsModal(isAutoClose = false) {
             }
         }, 1000);
     } else {
-        // 상단 [🎯 조건] 직접 클릭 모드 ([조건 수정] 버튼 노출)
-        if (msgEl) msgEl.style.display = "none";
+        // [상단 '🎯 조건' 버튼 직접 클릭 모드]
+        // 5초 카운트다운 메시지 숨김
+        if (msgEl) {
+            msgEl.classList.add("hidden");
+            msgEl.style.display = "none";
+        }
+        // [⚙️ 조건 수정] 버튼 노출
         if (btnToggle) {
             btnToggle.classList.remove("hidden");
             btnToggle.innerText = "⚙️ 조건 수정";

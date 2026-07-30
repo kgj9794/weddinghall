@@ -76,8 +76,8 @@
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* 🛑 [핵심 수정] 범용 hidden 클래스 강제 적용 */
-.hidden {
+/* 🎬 일반 요소용 hidden (레이어 모달/오버레이 제외) */
+.hidden:not(.modal-overlay):not(.zoom-overlay):not(.password-overlay):not(.loading-overlay):not(.main-content) {
     display: none !important;
 }
 
@@ -117,13 +117,24 @@ body.modal-open {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* 🎬 메인 콘텐츠 아래에서 위로 올라오는 애니메이션 */
 .main-content {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
 }
 
+.main-content.hidden {
+    transform: translateY(40px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 🎬 비밀번호 잠금 화면 위로 올라가며 사라지는 애니메이션 */
 .password-overlay {
     position: fixed;
     top: 0;
@@ -137,11 +148,15 @@ body.modal-open {
     align-items: center;
     z-index: 30000;
     padding: 20px;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, visibility 0.6s ease;
     overscroll-behavior: contain;
 }
 
 .password-overlay.hidden {
+    transform: translateY(-100%);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -270,6 +285,7 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
+/* 🎬 로딩 화면 페이드 트랜지션 */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -283,7 +299,9 @@ body.modal-open {
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .loading-overlay.hidden {
@@ -753,6 +771,9 @@ header p {
     text-align: center;
 }
 
+/* ----------------------------------
+   🎬 모달 팝업 오버레이 및 아래에서 위로 올라오는 애니메이션
+---------------------------------- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -766,8 +787,16 @@ header p {
     align-items: center;
     z-index: 10000;
     padding: 16px;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
     overscroll-behavior: contain;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .modal-content {
@@ -786,6 +815,16 @@ header p {
     touch-action: pan-y;
     overscroll-behavior: contain;
     position: relative;
+    /* 🎬 열릴 때 아래에서 위로 감각적으로 등장 */
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+/* 🎬 닫힐 때 아래로 매끄럽게 내려가는 효과 */
+.modal-overlay.hidden .modal-content {
+    transform: translateY(100%) scale(0.95);
+    opacity: 0;
 }
 
 .map-modal-content {
@@ -971,6 +1010,7 @@ header p {
     width: 100%;
 }
 
+/* 🎬 고화질 Zoom 모달 이미지 뷰어 애니메이션 */
 .zoom-overlay {
     position: fixed;
     top: 0;
@@ -987,6 +1027,17 @@ header p {
     user-select: none;
     touch-action: none;
     overscroll-behavior: contain;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zoom-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(100%);
 }
 
 .zoom-close-btn {

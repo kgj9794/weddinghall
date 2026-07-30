@@ -76,7 +76,6 @@
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* 📱 sticky 동작을 차단하지 않도록 overflow-x: clip 사용 */
 html, body {
     width: 100%;
     max-width: 100vw;
@@ -93,16 +92,12 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* 🔒 팝업 활성화 시 메인 화면 배경 스크롤 완전 차단 */
 body.modal-open {
     overflow: hidden !important;
     height: 100vh !important;
     touch-action: none;
 }
 
-/* ----------------------------------
-   📌 메인 화면 스크롤 시 상단 헤더 완벽 고정
----------------------------------- */
 .main-header-sticky {
     position: sticky;
     top: 0;
@@ -117,9 +112,6 @@ body.modal-open {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* ----------------------------------
-   🛡️ 보안 강화를 위한 메인 콘텐츠 숨김
----------------------------------- */
 .main-content {
     width: 100%;
     display: flex;
@@ -131,9 +123,6 @@ body.modal-open {
     display: none !important;
 }
 
-/* ----------------------------------
-   🔒 비밀번호 잠금 화면 스타일
----------------------------------- */
 .password-overlay {
     position: fixed;
     top: 0;
@@ -237,9 +226,6 @@ body.modal-open {
     min-height: 1.2em;
 }
 
-/* ----------------------------------
-   📱 상단 네비게이션 바 (가로 슬라이더)
----------------------------------- */
 .top-nav {
     width: 100%;
     max-width: 500px;
@@ -283,7 +269,6 @@ body.modal-open {
     transform: translateY(-1px);
 }
 
-/* 로딩 화면 UI */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -360,9 +345,6 @@ header p {
     color: var(--text-sub);
 }
 
-/* ----------------------------------
-   💍 실시간 D-Day 카운트다운 전용 UI
----------------------------------- */
 .wedding-dday-container {
     margin-top: 8px;
     background-color: var(--pink-bg);
@@ -420,7 +402,8 @@ header p {
 }
 
 .dday-input-group input[type="datetime-local"],
-.dday-input-group input[type="url"] {
+.dday-input-group input[type="url"],
+.dday-input-group input[type="text"] {
     width: 100%;
     padding: 10px;
     font-size: 0.88rem;
@@ -549,7 +532,6 @@ header p {
     color: var(--text-main);
 }
 
-/* 링크 그룹 컨테이너 */
 .hall-links-container {
     margin-top: 14px;
     display: flex;
@@ -634,7 +616,6 @@ header p {
     text-align: center;
 }
 
-/* 🩷 일반 저장 상태 (메모만 작성 등) */
 .reservation-box.is-saved {
     background-color: var(--pink-bg);
     border: 1px solid var(--pink-border);
@@ -644,7 +625,6 @@ header p {
     color: var(--pink-text);
 }
 
-/* 🟢 일시 지정 저장 상태 (우선순위 최고) */
 .reservation-box.has-date {
     background-color: var(--green-bg) !important;
     border: 1px solid var(--green-border) !important;
@@ -776,9 +756,6 @@ header p {
     text-align: center;
 }
 
-/* ----------------------------------
-   공통 모달 (Modal) 및 스크롤 스타일
----------------------------------- */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -820,7 +797,6 @@ header p {
     position: relative;
 }
 
-/* 🗺️ 지도 전용 모달 스타일 */
 .map-modal-content {
     max-width: 500px;
     height: 80vh;
@@ -842,7 +818,6 @@ header p {
     border: none;
 }
 
-/* ✨ 제미나이 추천 모달 스타일 */
 .recommend-list {
     display: flex;
     flex-direction: column;
@@ -880,7 +855,6 @@ header p {
     margin-bottom: 0;
 }
 
-/* 📌 모달 내부 스크롤 시 상단 타이틀&X버튼 고정 */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -1006,9 +980,6 @@ header p {
     width: 100%;
 }
 
-/* ----------------------------------
-   🔍 고화질 확대 뷰어 (Zoom Modal) 전용 UI
----------------------------------- */
 .zoom-overlay {
     position: fixed;
     top: 0;
@@ -1057,7 +1028,6 @@ header p {
     transform: scale(0.92);
 }
 
-/* 📌 사진 카운터 배지 (상단 중앙) */
 .zoom-counter {
     position: absolute;
     top: 24px;
@@ -1075,7 +1045,6 @@ header p {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-/* ↔️ 좌우 이동 버튼 */
 .zoom-nav-btn {
     position: absolute;
     top: 50%;
@@ -1137,6 +1106,24 @@ header p {
     gap: 10px;
 }
 
+.conditions-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.conditions-edit-form textarea {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    outline: none;
+    resize: vertical;
+    background: var(--input-bg);
+    color: var(--text-main);
+}
+
 .overview-card {
     background-color: var(--overview-card-bg);
     border: 1px solid var(--border-color);
@@ -1153,7 +1140,6 @@ header p {
     border-color: var(--pink-border);
 }
 
-/* 🟢 초록색 일시 저장 상태 한눈에 보기 카드 */
 .overview-card.has-date {
     background-color: var(--green-bg) !important;
     border-color: var(--green-border) !important;

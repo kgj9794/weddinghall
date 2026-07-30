@@ -6,6 +6,15 @@ let activeLinkHallId = null;
 let autoCloseInterval = null;
 let targetWeddingDate = null;
 
+// 예식 조건 글로벌 상태 관리 (초기 기본값 설정)
+let currentConditions = {
+    weddingDateCond: "27년 12월 토/일 희망\n(일요일 선호 [12/4 토, 12/5 일])",
+    timeCond: "11시 ~ 14시 골든타임",
+    guestsCond: "200명 ~ 250명",
+    tourCond: "8월 주말 (토요일 선호)",
+    budgetCond: "2,500만원"
+};
+
 // 확대 및 이동 좌표 상태 관리
 let currentZoomScale = 1.0;
 let currentTranslateX = 0;
@@ -188,8 +197,7 @@ function closeTopModalUI() {
     } else if (weddingDateModal && !weddingDateModal.classList.contains("hidden")) {
         weddingDateModal.classList.add("hidden");
     } else if (conditionsModal && !conditionsModal.classList.contains("hidden")) {
-        conditionsModal.classList.add("hidden");
-        if (autoCloseInterval) clearInterval(autoCloseInterval);
+        closeConditionsModal();
     } else if (overviewModal && !overviewModal.classList.contains("hidden")) {
         overviewModal.classList.add("hidden");
     }
@@ -331,6 +339,16 @@ function loadFromLocalStorage() {
             updateCountdown();
         }
 
+        const cachedCond = localStorage.getItem("wedding_conditions_cache");
+        if (cachedCond) {
+            try {
+                currentConditions = JSON.parse(cachedCond);
+                renderConditions();
+            } catch (e) {
+                console.warn("Conditions cache parse error", e);
+            }
+        }
+
         const cached = localStorage.getItem("wedding_tour_cache");
         if (cached) {
             const data = JSON.parse(cached);
@@ -417,7 +435,6 @@ function setHallDataState(hallId, dateVal, memoVal, imgArr, instaVal, blogVal) {
         blog: blog
     };
 
-    // 인스타 / 블로그 버튼 동적 업데이트 및 표시/숨김 처리
     const instaBtn = document.getElementById("insta-btn-" + hallId);
     const blogBtn = document.getElementById("blog-btn-" + hallId);
 
@@ -531,6 +548,18 @@ function loadReservations() {
                 targetWeddingDate = data.weddingDate;
                 localStorage.setItem("wedding_date_cache", data.weddingDate);
                 updateCountdown();
+            }
+
+            if (data.conditions) {
+                currentConditions = {
+                    weddingDateCond: data.conditions.weddingDateCond || currentConditions.weddingDateCond,
+                    timeCond: data.conditions.timeCond || currentConditions.timeCond,
+                    guestsCond: data.conditions.guestsCond || currentConditions.guestsCond,
+                    tourCond: data.conditions.tourCond || currentConditions.tourCond,
+                    budgetCond: data.conditions.budgetCond || currentConditions.budgetCond
+                };
+                localStorage.setItem("wedding_conditions_cache", JSON.stringify(currentConditions));
+                renderConditions();
             }
 
             ["thesaint", "verde", "dmc", "worldcup"].forEach(id => {
@@ -1018,8 +1047,115 @@ function initZoomKeyNav() {
 }
 
 // ----------------------------------
-// 조건 보기 & 한눈에 보기
+// 🎯 나의 예식 조건 모달 관리 & 실시간 저장
 // ----------------------------------
+function renderConditions() {
+    const viewWeddingDate = document.getElementById("cond-view-weddingDate");
+    const viewTime = document.getElementById("cond-view-time");
+    const viewGuests = document.getElementById("cond-view-guests");
+    const viewTour = document.getElementById("cond-view-tour");
+    const viewBudget = document.getElementById("cond-view-budget");
+
+    if (viewWeddingDate) viewWeddingDate.innerHTML = (currentConditions.weddingDateCond || "").replace(/\n/g, "<br>");
+    if (viewTime) viewTime.innerText = currentConditions.timeCond || "";
+    if (viewGuests) viewGuests.innerText = currentConditions.guestsCond || "";
+    if (viewTour) viewTour.innerText = currentConditions.tourCond || "";
+    if (viewBudget) viewBudget.innerText = currentConditions.budgetCond || "";
+}
+
+function toggleConditionsEdit() {
+    const viewDiv = document.getElementById("conditions-view-mode");
+    const editDiv = document.getElementById("conditions-edit-mode");
+    const btnToggle = document.getElementById("btn-cond-toggle");
+    const statusMsg = document.getElementById("conditions-status-msg");
+
+    if (statusMsg) statusMsg.innerText = "";
+
+    if (editDiv.classList.contains("hidden")) {
+        // 보기 모드 -> 수정 모드로 전환
+        document.getElementById("cond-edit-weddingDate").value = currentConditions.weddingDateCond || "";
+        document.getElementById("cond-edit-time").value = currentConditions.timeCond || "";
+        document.getElementById("cond-edit-guests").value = currentConditions.guestsCond || "";
+        document.getElementById("cond-edit-tour").value = currentConditions.tourCond || "";
+        document.getElementById("cond-edit-budget").value = currentConditions.budgetCond || "";
+
+        viewDiv.classList.add("hidden");
+        editDiv.classList.remove("hidden");
+        if (btnToggle) btnToggle.innerText = "💾 저장하기";
+    } else {
+        // 수정 모드 -> 저장 수행
+        saveConditions();
+    }
+}
+
+function saveConditions() {
+    const wCond = document.getElementById("cond-edit-weddingDate").value.trim();
+    const tCond = document.getElementById("cond-edit-time").value.trim();
+    const gCond = document.getElementById("cond-edit-guests").value.trim();
+    const tourCond = document.getElementById("cond-edit-tour").value.trim();
+    const bCond = document.getElementById("cond-edit-budget").value.trim();
+    const statusMsg = document.getElementById("conditions-status-msg");
+
+    currentConditions = {
+        weddingDateCond: wCond,
+        timeCond: tCond,
+        guestsCond: gCond,
+        tourCond: tourCond,
+        budgetCond: bCond
+    };
+
+    localStorage.setItem("wedding_conditions_cache", JSON.stringify(currentConditions));
+    renderConditions();
+
+    document.getElementById("conditions-view-mode").classList.remove("hidden");
+    document.getElementById("conditions-edit-mode").classList.add("hidden");
+    const btnToggle = document.getElementById("btn-cond-toggle");
+    if (btnToggle) btnToggle.innerText = "⚙️ 조건 수정";
+
+    if (statusMsg) {
+        statusMsg.innerText = "DB에 저장 중...";
+        statusMsg.style.color = "var(--primary-color)";
+    }
+
+    const payload = {
+        password: getAuthPassword(),
+        action: "saveConditions",
+        conditions: currentConditions
+    };
+
+    fetch(GAS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            if (statusMsg) {
+                statusMsg.innerText = "✅ 성공적으로 저장되었습니다.";
+                statusMsg.style.color = "#2e7d32";
+            }
+        } else {
+            if (statusMsg) {
+                statusMsg.innerText = "⚠️ 저장 권한 오류 (비밀번호 확인 필요)";
+                statusMsg.style.color = "#d32f2f";
+            }
+            if (data.message && data.message.includes("인증")) {
+                alert("인증이 만료되었습니다.");
+                clearAuthSession();
+                checkAuth();
+            }
+        }
+    })
+    .catch(err => {
+        if (statusMsg) {
+            statusMsg.innerText = "⚠️ 시트 연결 지연 (로컬 저장 완료)";
+            statusMsg.style.color = "#d32f2f";
+        }
+        console.error(err);
+    });
+}
+
 function checkInitialConditionsPopup() {
     const todayStr = new Date().toDateString();
     const hideUntil = localStorage.getItem("conditions_hide_today");
@@ -1056,6 +1192,14 @@ function openConditionsModal(isAutoClose = false) {
 }
 
 function closeConditionsModal() {
+    const viewDiv = document.getElementById("conditions-view-mode");
+    const editDiv = document.getElementById("conditions-edit-mode");
+    const btnToggle = document.getElementById("btn-cond-toggle");
+    if (viewDiv && editDiv) {
+        viewDiv.classList.remove("hidden");
+        editDiv.classList.add("hidden");
+        if (btnToggle) btnToggle.innerText = "⚙️ 조건 수정";
+    }
     closeModal("conditions-modal");
 }
 
@@ -1065,6 +1209,7 @@ function hideConditionsToday() {
     closeConditionsModal();
 }
 
+// 한눈에 보기 모달
 function openOverviewModal() {
     pushModalState("overview-modal");
     const container = document.getElementById("overview-list");

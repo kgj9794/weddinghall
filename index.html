@@ -320,39 +320,68 @@
         </div>
     </div>
 
-    <!-- 모달 3: 나의 예식 조건 모달 -->
+    <!-- 모달 3: 나의 예식 조건 모달 (수정/보기 기능 지원) -->
     <div id="conditions-modal" class="modal-overlay hidden" onclick="closeConditionsModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2>🎯 나의 예식 조건</h2>
                 <button class="modal-close-btn" onclick="closeConditionsModal()">✕</button>
             </div>
-            <div class="conditions-list">
+
+            <!-- 조건 보기 모드 -->
+            <div id="conditions-view-mode" class="conditions-list">
                 <div class="condition-item">
                     <strong>📅 예식일 :</strong>
-                    <span>27년 12월 토/일 희망<br>(일요일 선호 [12/4 토, 12/5 일])</span>
+                    <span id="cond-view-weddingDate">27년 12월 토/일 희망<br>(일요일 선호 [12/4 토, 12/5 일])</span>
                 </div>
                 <div class="condition-item">
                     <strong>⏰ 시간 :</strong>
-                    <span>11시 ~ 14시 골든타임</span>
+                    <span id="cond-view-time">11시 ~ 14시 골든타임</span>
                 </div>
                 <div class="condition-item">
                     <strong>👥 보증인원 :</strong>
-                    <span>200명 ~ 250명</span>
+                    <span id="cond-view-guests">200명 ~ 250명</span>
                 </div>
                 <div class="condition-item">
                     <strong>🏃 투어방문 :</strong>
-                    <span>8월 주말 (토요일 선호)</span>
+                    <span id="cond-view-tour">8월 주말 (토요일 선호)</span>
                 </div>
                 <div class="condition-item">
                     <strong>💰 예산 :</strong>
-                    <span>2,500만원</span>
+                    <span id="cond-view-budget">2,500만원</span>
                 </div>
             </div>
+
+            <!-- 조건 수정 모드 -->
+            <div id="conditions-edit-mode" class="conditions-edit-form hidden">
+                <div class="dday-input-group">
+                    <label>📅 예식일 조건</label>
+                    <textarea id="cond-edit-weddingDate" rows="2" placeholder="예: 27년 12월 토/일 희망"></textarea>
+                </div>
+                <div class="dday-input-group">
+                    <label>⏰ 시간</label>
+                    <input type="text" id="cond-edit-time" placeholder="예: 11시 ~ 14시 골든타임">
+                </div>
+                <div class="dday-input-group">
+                    <label>👥 보증인원</label>
+                    <input type="text" id="cond-edit-guests" placeholder="예: 200명 ~ 250명">
+                </div>
+                <div class="dday-input-group">
+                    <label>🏃 투어방문</label>
+                    <input type="text" id="cond-edit-tour" placeholder="예: 8월 주말 (토요일 선호)">
+                </div>
+                <div class="dday-input-group">
+                    <label>💰 예산</label>
+                    <input type="text" id="cond-edit-budget" placeholder="예: 2,500만원">
+                </div>
+            </div>
+
+            <div id="conditions-status-msg" class="status-msg"></div>
             <div id="auto-close-msg" class="auto-close-msg" style="display: none;"></div>
+
             <div class="modal-footer">
                 <button class="btn-hide-today" onclick="hideConditionsToday()">오늘 하루 동안 보지 않기</button>
-                <button class="btn-modal-confirm" onclick="closeConditionsModal()">닫기</button>
+                <button id="btn-cond-toggle" class="btn-modal-confirm" onclick="toggleConditionsEdit()">⚙️ 조건 수정</button>
             </div>
         </div>
     </div>

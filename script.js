@@ -383,13 +383,12 @@ function hideLoader() {
     }, 200);
 }
 
+// ----------------------------------
+// 🕒 날짜 및 시간 파싱 유틸리티 (수정 완료)
+// ----------------------------------
 function sanitizeDatetimeLocal(dateTimeStr) {
     if (!dateTimeStr) return "";
     if (typeof dateTimeStr !== 'string') dateTimeStr = String(dateTimeStr);
-    
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(dateTimeStr)) {
-        return dateTimeStr.substring(0, 16);
-    }
     
     let d = new Date(dateTimeStr);
     if (!isNaN(d.getTime())) {
@@ -400,6 +399,11 @@ function sanitizeDatetimeLocal(dateTimeStr) {
         let min = String(d.getMinutes()).padStart(2, '0');
         return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
     }
+    
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/.test(dateTimeStr)) {
+        return dateTimeStr.substring(0, 10) + 'T' + dateTimeStr.substring(11, 16);
+    }
+    
     return "";
 }
 
@@ -1072,7 +1076,6 @@ function toggleConditionsEdit() {
     if (statusMsg) statusMsg.innerText = "";
 
     if (editDiv.classList.contains("hidden")) {
-        // 보기 모드 -> 수정 모드로 전환 (인풋 박스 노출)
         document.getElementById("cond-edit-weddingDate").value = currentConditions.weddingDateCond || "";
         document.getElementById("cond-edit-time").value = currentConditions.timeCond || "";
         document.getElementById("cond-edit-guests").value = currentConditions.guestsCond || "";
@@ -1083,7 +1086,6 @@ function toggleConditionsEdit() {
         editDiv.classList.remove("hidden");
         if (btnToggle) btnToggle.innerText = "💾 저장하기";
     } else {
-        // 수정 모드 -> 저장 수행
         saveConditions();
     }
 }
@@ -1176,7 +1178,6 @@ function openConditionsModal(isAutoClose = false) {
     const viewDiv = document.getElementById("conditions-view-mode");
     const editDiv = document.getElementById("conditions-edit-mode");
 
-    // 항상 초기 진입 시 보기 모드로 리셋 (인풋 박스 숨김)
     if (viewDiv) viewDiv.classList.remove("hidden");
     if (editDiv) editDiv.classList.add("hidden");
     if (statusMsg) statusMsg.innerText = "";
@@ -1184,8 +1185,6 @@ function openConditionsModal(isAutoClose = false) {
     if (autoCloseInterval) clearInterval(autoCloseInterval);
 
     if (isAutoClose) {
-        // [첫 접속 5초 자동 팝업 모드]
-        // 조건 수정 버튼 숨김
         if (btnToggle) {
             btnToggle.classList.add("hidden");
             btnToggle.innerText = "⚙️ 조건 수정";
@@ -1207,13 +1206,10 @@ function openConditionsModal(isAutoClose = false) {
             }
         }, 1000);
     } else {
-        // [상단 '🎯 조건' 버튼 직접 클릭 모드]
-        // 5초 카운트다운 메시지 숨김
         if (msgEl) {
             msgEl.classList.add("hidden");
             msgEl.style.display = "none";
         }
-        // [⚙️ 조건 수정] 버튼 노출
         if (btnToggle) {
             btnToggle.classList.remove("hidden");
             btnToggle.innerText = "⚙️ 조건 수정";
